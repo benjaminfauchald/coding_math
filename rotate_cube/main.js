@@ -1,15 +1,13 @@
 window.onload = function() {
-  var canvas = document.getElementById("canvas"),
-    context = canvas.getContext("2d"),
-    width = canvas.width = window.innerWidth,
-    height = canvas.height = window.innerHeight
-    fl = 300,
-    points = [],
-    needsUpdate=true;
+	var canvas = document.getElementById("canvas"),
+		context = canvas.getContext("2d"),
+		width = canvas.width = window.innerWidth,
+		height = canvas.height = window.innerHeight
+		fl = 300,
+		points = [],
+		needsUpdate = true;
 
-  context.translate(width / 2, height / 2);
-
-
+	context.translate(width / 2, height / 2);
 
 
   points[0] = { x: -500, y: -500, z: 1000};
@@ -33,7 +31,17 @@ window.onload = function() {
 		}
 	}
 
-  console.log('test');
+
+function translateModel(x,y,z) {
+    for(var i = 0; i < points.length; i++) {
+      points[i].x += x;
+      points[i].y += x;
+      points[i].z += x;
+    }
+    needsUpdate = true;
+}
+
+
 
 
 
@@ -79,10 +87,14 @@ window.onload = function() {
     update();
 
     function update() {
-      project();
       if (needsUpdate)
       {
-        context.clearRect( width / 2, height / 2, width, height);
+        context.beginPath();
+        context.clearRect(-width / 2, -height / 2, width, height);
+
+
+
+        project();
         context.beginPath;
         drawLine(0,1,2,3,0);
         drawLine(4,5,6,7,4);
@@ -90,8 +102,9 @@ window.onload = function() {
         drawLine(7,3);
         drawLine(6,2);
         drawLine(5,1);
+        context.stroke();
+        needsUpdate = false;
       }
       requestAnimationFrame(update);
-      context.stroke();
     }
 };
