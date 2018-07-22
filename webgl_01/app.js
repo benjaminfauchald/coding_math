@@ -51,18 +51,22 @@ var InitDemo = function () {
 	gl.shaderSource(vertexShader, vertexShaderText);
 	gl.shaderSource(fragmentShader, fragmentShaderText);
 
+
+  // This check the compilation of the vertexShader and logs compile errors to the console
 	gl.compileShader(vertexShader);
 	if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
 		console.error('ERROR compiling vertex shader!', gl.getShaderInfoLog(vertexShader));
 		return;
 	}
 
+  // This check the compilation of the fragmentShader and logs compile errors to the console
 	gl.compileShader(fragmentShader);
 	if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
 		console.error('ERROR compiling fragment shader!', gl.getShaderInfoLog(fragmentShader));
 		return;
 	}
 
+  // Now we attach the shaders to the programs
 	var program = gl.createProgram();
 	gl.attachShader(program, vertexShader);
 	gl.attachShader(program, fragmentShader);
@@ -71,6 +75,8 @@ var InitDemo = function () {
 		console.error('ERROR linking program!', gl.getProgramInfoLog(program));
 		return;
 	}
+
+  //catch more errors if any
 	gl.validateProgram(program);
 	if (!gl.getProgramParameter(program, gl.VALIDATE_STATUS)) {
 		console.error('ERROR validating program!', gl.getProgramInfoLog(program));
@@ -82,9 +88,9 @@ var InitDemo = function () {
 	//
 	var triangleVertices =
 	[ // X, Y,       R, G, B
-		0.0, 0.5,    1.0, 1.0, 0.0,
-		-0.5, -0.5,  0.7, 0.0, 1.0,
-		0.5, -0.5,   0.1, 1.0, 0.6
+		 0.0,  0.5,   1.0, 1.0, 0.0,
+		-0.5, -0.5,   0.7, 0.0, 1.0,
+		 0.5, -0.5,   0.1, 1.0, 0.6
 	];
 
 	var triangleVertexBufferObject = gl.createBuffer();
