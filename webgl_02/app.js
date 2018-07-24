@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------------
 //This is the GLSL langauge for our vertex shader
 //--------------------------------------------------------------------------------------------------------
-var vertexShaderText = ´
+var vertexShaderText = `
 precision mediump float;
 
 attribute vec3 vertPosition;
@@ -16,12 +16,12 @@ void main()
   fragColor = vertColor;
   gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
 }
-´
+`
 
 //--------------------------------------------------------------------------------------------------------
 //This is the GLSL langauge for our fragment shader
 //--------------------------------------------------------------------------------------------------------
-var fragmentShaderText = ´
+var fragmentShaderText = `
 precision mediump float;
 
 varying vec3 fragColor;
@@ -29,7 +29,7 @@ void main()
 {
   gl_FragColor = vec4(fragColor, 1.0);
 }
-´
+`
 //--------------------------------------------------------------------------------------------------------
 
 var gl;
@@ -90,6 +90,10 @@ var InitDemo = function () {
 		console.error('ERROR validating program!', gl.getProgramInfoLog(program));
 		return;
 	}
+
+
+var progVertices = [];
+
 
 	//
 	// Create buffer
