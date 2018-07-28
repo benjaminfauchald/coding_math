@@ -10,8 +10,6 @@ window.onload = function update() {
     width = canvas.width = window.innerWidth,
     height = canvas.height = window.innerHeight,
 
-    angle = 0,
-
     imagedata = context.createImageData(width, height);
 
     requestAnimationFrame(update);
@@ -20,6 +18,7 @@ window.onload = function update() {
         time = 0;
         frame = 0;
         timeNextFrame = 0;
+        angle = 0;
 
     }
 
@@ -33,16 +32,9 @@ window.onload = function update() {
     timeNextFrame += 1/60;
     }
 
-
-    //render visual
-    context.translate(width/2,height/2);
-    context.strokeStyle = '#fff';
-    context.strokeText([width, height, frame], 0, 0);
-    debug_box = document.getElementById("debug_box");
-
-
-
-
+//------------------------------------------------------------------------------
+// Data definitions
+//------------------------------------------------------------------------------
 
     var points = [
         {x:000,y:000,z:000},
@@ -57,6 +49,23 @@ window.onload = function update() {
         }
     ];
 
+//------------------------------------------------------------------------------
+// Function definitions
+//------------------------------------------------------------------------------
+
+
+    function drawLines(points){
+
+        context.beginPath();
+        context.moveTo(points[0].x, points[0].y);
+
+        points.forEach(p => {
+            context.lineTo(p.x, p.y);
+        });
+        context.lineTo(points[0].x, points[0].y);
+        context.stroke();
+
+    };
 
     function rotate2d(x,y,angle){
     //    x = x * cos(angle) - y * sin(angle)
@@ -65,9 +74,6 @@ window.onload = function update() {
         ny = y * Math.sin(angle) + y * Math.cos(angle);
         return[nx,ny]
     };
-
-
-
 
     function drawPoints(points, angle) {
         radius = 20;
@@ -81,55 +87,66 @@ window.onload = function update() {
             x=p.x;
             y=p.y;
 
-            debug_box.innerHTML = 'Angle: ' + angle;
-            rotated_points = rotate2d(x, y, angle);
-
-            x = rotated_points[0];
-            y = rotated_points[1];
-            //        p.x = p.x + (width / 2) + (p.x / 2);
-            //        p.y = p.y + (height / 2) + (p.y / 2);
-
-            x = (width / 2) + x; //tranlsate points to screen cords
-            y = (height / 2) + y; //tranlsate points to screen cords
 
             // draw ugly circles
             context.beginPath();
-            context.arc(x, y, radius, 0, 2 * Math.PI, false);
-            context.fillStyle = 'green';
+            context.fillStyle = '#fff';
+            context.arc(x, y, 10, 0, Math.PI * 2, true);
+            context.closePath();
             context.fill();
-            context.lineWidth = 5;
-            context.strokeStyle = '#003300';
-            context.stroke();
         });
     };
 
-
-    // draw ugly circles
-    radius = 10;
-    context.beginPath();
-    context.arc(100, 100, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = 'green';
-    context.fill();
-    context.lineWidth = 5;
-    context.strokeStyle = '#003300';
-    context.stroke();
-
-//------------------------------------------------------------------------------
-
-    //context.clearRect(0, 0, canvas.width, canvas.height);
-    // Draw the image data to the canvas
-
-    angle++;
-    if (angle == 360) {
-        angle = 0;
-    }
-    drawPoints(points, angle);
-
+function rotatePoints(points,angle){
+    points.forEach(p=>{
+        rotated_points = rotate2d(p.x, p.y, angle);
+        p.x = rotated_points[0];
+        p.y = rotated_points[1];
+    });
 };
 
 
 //------------------------------------------------------------------------------
+//  Render visual
+//------------------------------------------------------------------------------
 
+
+    angle = angle + 0.05;
+    if (angle == 360) {
+        angle = 0;
+    }
+
+    context.translate(width / 2, height / 2);
+
+    context.strokeStyle = '#fff';
+    context.strokeText([width, height, frame], 0, 0);
+    context.stroke();
+
+    context.strokeText([angle], 0, 100);
+
+    context.stroke();
+
+    //draw a circle
+    rotatePoints(points, angle);
+    drawPoints(points);
+    drawLines(points);
+
+//------------------------------------------------------------------------------
+
+//    context.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw the image data to the canvas
+
+
+    //drawPoints(points, angle);
+
+
+    // Debug data
+
+//    context.strokeText('Angle ' + angle, 0, 10);
+
+//------------------------------------------------------------------------------
+
+};
     // var time,
     // frame,
     // timeNextFrame,
