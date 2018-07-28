@@ -70,8 +70,9 @@ window.onload = function update() {
     function rotate2d(x,y,angle){
     //    x = x * cos(angle) - y * sin(angle)
     //    y = x * sin(angle) + y * cos(angle)
-        nx = x * Math.cos(angle) - y * Math.sin(angle);
-        ny = y * Math.sin(angle) + y * Math.cos(angle);
+        var rad = angle * Math.PI / 180.0;
+        nx = x * Math.cos(rad) - y * Math.sin(rad);
+        ny = y * Math.sin(rad) + y * Math.cos(rad);
         return[nx,ny]
     };
 
@@ -105,14 +106,36 @@ function rotatePoints(points,angle){
     });
 };
 
+function rotatePoints3d(points, angle) {
+    points.forEach(p => {
+        rotated_points = rotate3d(p.x, p.y, 0,0,angle);
+        p.x = rotated_points[0];
+        p.y = rotated_points[1];
+    });
+};
+
+
+/*
+ CX @ Origin X
+ CY @ Origin Y
+ X  @ Point X to be rotated
+ Y  @ Point Y to be rotated
+*/
+function rotate3d(X, Y, CX, CY, angle) {
+    var rad = angle * Math.PI / 180.0;
+    var nx = Math.cos(rad) * (X - CX) - Math.sin(rad) * (Y - CY) + CX;
+    var ny = Math.sin(rad) * (X - CX) + Math.cos(rad) * (Y - CY) + CY;
+
+    return [nx, ny];
+}
 
 //------------------------------------------------------------------------------
 //  Render visual
 //------------------------------------------------------------------------------
 
 
-    angle = angle + 0.05;
-    if (angle == 360) {
+    angle = angle + 2.5;
+    if (angle > 360) {
         angle = 0;
     }
 
@@ -131,124 +154,14 @@ function rotatePoints(points,angle){
     drawPoints(points);
     drawLines(points);
 
-//------------------------------------------------------------------------------
-
-//    context.clearRect(0, 0, canvas.width, canvas.height);
-    // Draw the image data to the canvas
-
-
-    //drawPoints(points, angle);
-
-
-    // Debug data
-
-//    context.strokeText('Angle ' + angle, 0, 10);
 
 //------------------------------------------------------------------------------
 
 };
-    // var time,
-    // frame,
-    // timeNextFrame,
-    // currentTime;
+ 
 
-    // // Main loop
-    // var angle = 0;
-
-
-
-    //     if (!window.time) {
-    //         time = 0;
-    //         frame = 0;
-    //         timeNextFrame = 0;
-
-    //     currentTime = performance.now() / 1000;
-    //     while(time < currentTime) {
-    //         while(time < timeNextFrame) {
-    //             time =+ 1 / 16384;
-    //         }
-    //     frame++;
-    //     timeNextFrame += 1/60;
-    //     }
-
-
-    // function main(tframe) {
-
-    //     // Request animation frames
-    //     requestAnimationFrame(main);
-
-    //     if (!window.time) {
-    //         time = 0;
-    //         frame = 0;
-    //         timeNextFrame = 0;
-    //     }
-
-    //     currentTime = performance.now() / 1000;
-    //     while(time < currentTime) {
-    //         while(time < timeNextFrame) {
-    //             time =+ 1 / 16384;
-    //         }
-    //         frame++;
-    //     timeNextFrame += 1/60;
-    //     }
-
-
-
-    //     context.clearRect(0, 0, canvas.width, canvas.height);
-    //     // Draw the image data to the canvas
-    //     angle++;
-    //     if (angle == 360) {
-    //         angle = 0;
-    //     }
-    //     drawPoints(points, angle);
-
-    // }
-
-    // // Call the main loop
-    // main(0);
 
 //------------------------------------------------------------------------------
-
-
-// context.beginPath();
-// context.moveTo(cur_x,cur_y);
-
-// context.lineTo(cur_x + tri_width, cur_y + tri_height);
-// context.lineTo(cur_x - (tri_width), cur_y + tri_height);
-// context.lineTo(cur_x , cur_y);
-// context.stroke();
-
-// var xy = [0,0];
-
-// xy = rotate(cur_x, cur_y, cur_x, cur_y, 10);
-
-//console.log(rotate(cur_x, cur_y, cur_x, cur_y, 10));
-//console.log(rotate(cur_x, cur_y, cur_x, cur_y, 15));
-
-// cur_x =xy[0];
-// cur_y =xy[1];
-
-
-
-// context.beginPath();
-// context.moveTo(cur_x,cur_y);
-
-// context.lineTo(cur_x + tri_width, cur_y + tri_height);
-// context.lineTo(cur_x - (tri_width), cur_y + tri_height);
-// context.lineTo(cur_x , cur_y);
-// context.stroke();
-
-  //
-  // for(var i=0; i < 100; i +=1) {
-  //     context.beginPath();
-  //     context.moveTo(Math.random() * width, Math.random() * height);
-  //     context.lineTo(Math.random() * width, Math.random() * height);
-  //     context.stroke();
-  // }
-
-
-
-
 
 
 
