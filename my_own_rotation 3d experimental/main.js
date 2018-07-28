@@ -12,6 +12,9 @@ window.onload = function update() {
 
     imagedata = context.createImageData(width, height);
 
+						init = true;
+
+
     requestAnimationFrame(update);
     //init
     if (!window.time) {
@@ -19,7 +22,17 @@ window.onload = function update() {
         frame = 0;
         timeNextFrame = 0;
         angle = 0;
-        zoom = 0.2;
+				zoom = 200;
+
+				rotationY = 1;
+				angleY = 0;
+
+				rotationX = 1;
+				angleX = 0;
+
+				rotationZ = 1;
+				angleZ = 0;
+				init = true;
 
     }
 
@@ -31,156 +44,194 @@ window.onload = function update() {
         }
     frame++;
     timeNextFrame += 1/60;
-    }
+		}
+
 
 //------------------------------------------------------------------------------
 // Data definitions
 //------------------------------------------------------------------------------
 
+if (init==true){
+
+
     var points = [
-            {x: 100, y:-100, z:-100},
-            {x: 100, y:-100, z:-100},
-            {x: 100, y: 100, z:-100},
-            {x: 100, y: 100, z:-100},
-            {x:-100, y: 100, z: 100},
-            {x:-100, y: 100, z: 100},
-            {x:-100, y:-100, z: 100},
-            {x:-100, y:-100, z: 100},
-    ];
+            {x:  100,  y:  100, z: -100},
+            {x:  100,  y: -100, z: -100},
+            {x: -100,  y: -100, z: -100},
+            {x: -100,  y:  100, z: -100},
 
-    var origin = [
-        {
-            x: 000,y: 000, z: 000
-        }
-    ];
+						{x:  100,  y:  100, z:  100},
+            {x:  100,  y: -100, z:  100},
+            {x: -100,  y: -100, z:  100},
+            {x: -100,  y:  100, z:  100},
 
+					];
+		
+		var screenpoints = [
+		
+		]
+
+		var connections = [
+
+
+			[6, 2, 5, "#00f"], [5, 1, 2, "#00f"],
+			[7, 3, 4, "#f0f"], [4, 0, 3, "#f0f"],
+
+			[0, 1, 2, "#f00"], [0, 3, 2, "#f00"],
+			[4, 5, 7, "#0f0"], [7, 5, 6, "#0f0"],
+
+			[6, 7, 3, "#0ff"], [3, 2, 6, "#0ff"],
+			[4, 5, 0, "#ff0"], [5, 1, 0, "#f00"],
+		]
+
+		init = false;
+
+	};
 //------------------------------------------------------------------------------
 // Function definitions
 //------------------------------------------------------------------------------
 
 
-    function drawLines(points){
-
-        context.beginPath();
-        context.moveTo(points[0].x, points[0].y);
-
-        points.forEach(p => {
-            context.lineTo(p.x, p.y);
-        });
-        context.lineTo(points[0].x, points[0].y);
-        context.stroke();
-
-    };
-
-    function rotateZ(points,radian)
-		{
-    	points.forEach(p => {
-					x = p.x;
-					y = p.y;
-					p.x = x * Math.cos(radian) - y * Math.sin(radian);
-					p.y = x * Math.sin(radian) + y * Math.cos(radian);
-        });
-    };
-
-    function project(points) {
-
-        points.forEach( p => {
-
-            // Converting points from screen space to raster space it actually 
-            // really simple.Because the coordinates P' expressed in raster space 
-            // can only be positive, we first need to normalise P's original 
-            // coordinates.In other words, convert them from whatever range they 
-            // are in originally, to the range 0, 1(when points are defined that way, 
-            // we say they are defined in NDC space.NDC stands for Normalized 
-            // Device Coordinates).Once converted to NDC space, converting the 
-            // point's coordinates to raster space is trivial:
-
-            var len = Math.sqrt(p.x * p.x + p.y * p.y)
-            p.x /= len;
-            p.y /= len;
-
-            p.x *= zoom;
-            p.y *= zoom;
-
-            //to screen cords
-
-            // Just multiply the 
-            // normalised coordinates by the image dimensions, and round the 
-            // number off to the nearest integer value (pixel coordinates are 
-            // always round numbers, or integers if you prefer). The range P' coordinates
-            // are originally in, depends on the size of the canvas in screen space.
-            // or the sake of simplicity, we will just assume that the canvas is two 
-            // units long in each of the two dimensions(width and height), 
-            // which means that P' coordinates in screen space, are in the range 
-            // [-1, 1]. Here is the pseudo code to convert P's coordinates from 
-            // screen space to raster space:
-            
-            p.x = p.x * width;
-            p.y = p.y * height;
-
-            if (p.x == width) { p.x = width - 1 };
-            if (p.y == height) { p.y = height - 1 };
-
-        });
-
-    }
-
-    // int width = 64, height = 64; // dimension of the image in pixels 
-    // Vec3f P = Vec3f(-1, 2, 10);
-    // Vec2f P_proj;
-    // P_proj.x = P.x / P.z; // -0.1 
-    // P_proj.y = P.y / P.z; // 0.2 
-    // // convert from screen space coordinates to normalized coordinates
-    // Vec2f P_proj_nor;
-    // P_proj_nor.x = (P_proj.x + 1) / 2; // (-0.1 + 1) / 2 = 0.45 
-    // P_proj_nor.y = (1 - P_proj.y) / 2; // (1 - 0.2) / 2 = 0.4 
-    // // finally, convert to raster space
-    // Vec2i P_proj_raster;
-    // P_proj_raster.x = (int)(P_proj_nor.x * width);
-    // P_proj_raster.y = (int)(P_proj_nor.y * height);
-    // if (P_proj_raster.x == width) P_proj_raster.x = width - 1;
-    // if (P_proj_raster.y == height) P_proj_raster.y = height - 1; 
 
 
-function drawPoints(points, angle) {
-    radius = 20;
-    points.forEach(p => {
 
-        //        p.x = p.x + (width / 2) + (p.x / 2);
-        //        p.y = p.y + (height / 2) + (p.y / 2);
-        //        drawPixel(p.x, p.y, 0, 0, 0);
-
-        //        angle = performance.now() / 1000 / 6 * 2 * Math.PI;
-        x=p.x;
-        y=p.y;
+function random_rgba() {
+	var o = Math.round,
+		r = Math.random,
+		s = 255;
+	return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ',' + r().toFixed(1) + ')';
+}
 
 
-        // draw ugly circles
-        context.beginPath();
-        context.fillStyle = '#fff';
-        context.arc(x, y, 10, 0, Math.PI * 2, true);
-        context.closePath();
-        context.fill();
-    });
+function ortographic_projection(points,screenpoints) {
+	points.forEach( p => {
+		screenpoints.push({x: p.x, y: p.y});
+	});
+}
+
+function drawLines(screenpoints) {
+
+		context.beginPath();
+		context.moveTo(screenpoints[0].x, screenpoints[0].y);
+
+		screenpoints.forEach(p => {
+				context.lineTo(p.x, p.y);
+		});
+		context.lineTo(points[0].x, points[0].y);
+		context.stroke();
+
+};
+
+
+// x ' = x*cos q - y*sin q
+// y ' = x*sin q + y*cos q 
+// z ' = z
+function rotateZ(points,radian)
+{
+	points.forEach(p => {
+			x = p.x;
+			y = p.y;
+			p.x = x * Math.cos(radian) - y * Math.sin(radian);
+			p.y = x * Math.sin(radian) + y * Math.cos(radian);
+		});
+};
+
+
+// y ' = y*cos q - z*sin q
+// z ' = y*sin q + z*cos q
+// x ' = x
+function rotateX(points, radian) {
+	points.forEach(p => {
+		y = p.y;
+		z = p.z;
+		p.y = y * Math.cos(radian) - z * Math.sin(radian);
+		p.z = y * Math.sin(radian) + z * Math.cos(radian);
+	});
+};
+
+
+// z' = z*cos q - x*sin q
+// x ' = z*sin q + x*cos q
+// y ' = y
+function rotateY(points, radian) {
+	points.forEach(p => {
+		x = p.x;
+		z = p.z;
+		p.z = z * Math.cos(radian) - x * Math.sin(radian);
+		p.x = z * Math.sin(radian) + x * Math.cos(radian);
+	});
 };
 
 
 
-// X - Axis Rotation
-// X - axis rotation looks like Z - axis rotation
-// if replace:
 
-//     X axis with Y axis
-// Y axis with Z axis
-// Z axis with X axis
+function project(points) {
+
+		points.forEach( p => {
+				//normalize
+				var len = Math.sqrt(p.x * p.x + p.y * p.y)
+				p.x /= len;
+				p.y /= len;
+
+				p.x *= zoom;
+				p.y *= zoom;
+
+				// to screen
+				
+				p.x = p.x * width;
+				p.y = p.y * height;
+
+				if (p.x == width) { p.x = width - 1 };
+				if (p.y == height) { p.y = height - 1 };
+		});
+}
+
+
+function project2(points) {
+
+	points.forEach(p => {
+		z = p.z;
+		p.x /= (p.z * zoom);
+		p.y /= (p.z * zoom);
+
+	});
+
+}
+
+
+function drawPoints(screenpoints, angle) {
+    radius = 20;
+    screenpoints.forEach(p => {
+        x=p.x;
+        y=p.y;
+
+				// draw ugly circles
+        context.beginPath();
+        context.fillStyle = '#fff';
+        context.arc(x, y, 10, 0, Math.PI * 2, true);
+        context.closePath();
+//        context.fill();
+    });
+};
+
+function drawConnections(screenpoints,connections){
 
 
 
-// So we do the same replacement in the equations:
+		connections.forEach( c => {
 
-//     y ' = y*cos q - z*sin q
-// z ' = y*sin q + z*cos q
-// x ' = x
+			context.fillStyle = c[3];
+			context.strokeStyle = c[3];
+
+
+			context.moveTo(screenpoints[c[0]].x, screenpoints[c[0]].y); // pick up "pen," reposition
+			context.lineTo(screenpoints[c[1]].x,  screenpoints[c[1]].y); // draw straight across to right
+			context.lineTo(screenpoints[c[2]].x, screenpoints[c[2]].y); // draw straight across to right
+			context.closePath(); // connect end to start
+//		context.fill(); // connect and fill
+			context.stroke(); // outline the shape that's been described
+		});
+};
 
 
 
@@ -193,11 +244,7 @@ function drawPoints(points, angle) {
 //------------------------------------------------------------------------------
 
     //remeber that this is calculated in radians (optimize this!)
-    angle = angle + 2.5;
-    if (angle > 360) {
-        angle = 0;
-    }
-    var radian = angle * Math.PI / 180.0;
+
 
 
     context.translate(width / 2, height / 2);
@@ -213,86 +260,47 @@ function drawPoints(points, angle) {
     });
 
 
+		angleZ = angleZ + rotationZ;
+		if (angleZ > 360) { angleZ = 0; }
+		var radian = angleZ * Math.PI / 180.0;
+		rotateZ(points, radian);
 
-    rotateZ(points, radian);
-    ty = ty - 100;
+		 angleX = angleX + rotationX;
+		 if (angleX > 360) { angleX = 0; }
+		 var radian = angleX * Math.PI / 180.0;
+		  rotateX(points, radian);
+
+		 angleY = angleY + rotationY;
+		 if (angleY > 360) { angleY = 0; }
+		 var radian = angleY * Math.PI / 180.0;
+		  rotateY(points, radian);
+
+		ty = ty - 100;
     points.forEach(p => {
         ty = ty + 15;
-        context.strokeText([p.x, p.y, p.z], -200, ty);
+        context.strokeText([p.x, p.y, p.z], 600, ty);
     });
 
-    project(points);
+    ortographic_projection(points,screenpoints);
     ty=ty+100;
-    points.forEach(p => {
+    screenpoints.forEach(p => {
         ty = ty + 15;
-        context.strokeText([p.x, p.y, p.z], 0, ty);
+        context.strokeText([p.x, p.y, p.z], -400, ty-200);
     });
+
+
 
     context.strokeText([angle], 0, 800);
 
     context.stroke();
 
 
-    drawPoints(points);
-    drawLines(points);
+		drawConnections(screenpoints, connections);
+//    drawPoints(screenpoints);
+ //   drawLines(screenpoints);
 
 
 //------------------------------------------------------------------------------
 
 };
  
-
-
-//------------------------------------------------------------------------------
-
-
-
-
-  // Create the image
-// function createImage(offset) {
-//     // Loop over all of the pixels
-//     for (var x = 0; x < width; x++) {
-//         for (var y = 0; y < height; y++) {
-//             // Get the pixel index
-//             var pixelindex = (y * width + x) * 4;
-
-//             // Generate a xor pattern with some random noise
-//             var red = ((x + offset) % 256) ^ ((y + offset) % 256);
-//             var green = ((2 * x + offset) % 256) ^ ((2 * y + offset) % 256);
-//             var blue = 50 + Math.floor(Math.random() * 100);
-
-//             // Rotate the colors
-//             blue = (blue + offset) % 256;
-
-//             // Set the pixel data
-//             imagedata.data[pixelindex] = red; // Red
-//             imagedata.data[pixelindex + 1] = green; // Green
-//             imagedata.data[pixelindex + 2] = blue; // Blue
-//             imagedata.data[pixelindex + 3] = 255; // Alpha
-//         }
-//     }
-// }
-
-// function drawPixel(x, y, r, g, b) {
-//     var pixelindex = (y * width + x) * 4;
-//     var radius = 10;
-//     // Set the pixel data
-//     imagedata.data[pixelindex] = r; // Red
-//     imagedata.data[pixelindex + 1] = g; // Green
-//     imagedata.data[pixelindex + 2] = b; // Blue
-//     imagedata.data[pixelindex + 3] = 255; // Alpha
-// }
-
-// /*
-//  CX @ Origin X
-//  CY @ Origin Y
-//  X  @ Point X to be rotated
-//  Y  @ Point Y to be rotated
-// */
-// function rotate(X, Y, CX, CY, angle) {
-//     var rad = angle * Math.PI / 180.0;
-//     var nx = Math.cos(rad) * (X - CX) - Math.sin(rad) * (Y - CY) + CX;
-//     var ny = Math.sin(rad) * (X - CX) + Math.cos(rad) * (Y - CY) + CY;
-
-//     return [nx, ny];
-// }
