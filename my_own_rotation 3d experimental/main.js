@@ -72,25 +72,15 @@ window.onload = function update() {
 
     };
 
-    function rotateZ(x,y,radian)
-    // Z - Axis Rotation
-    // Z - axis rotation is identical to the 2D case:
-
-    // x' = x*cos(Θ) - y*sin(Θ)
-    // y' = x*sin(Θ) + y*cos(Θ)
-    // z' = z
-
-    {
-        p.x = x * Math.cos(radian) - y * Math.sin(radian);
-        p.y = x * Math.sin(radian) + y * Math.cos(radian);
-        p.z = p.z;
-        return[p.x, p.y, p.z];
+    function rotateZ(points,radian)
+		{
+    	points.forEach(p => {
+					x = p.x;
+					y = p.y;
+					p.x = x * Math.cos(radian) - y * Math.sin(radian);
+					p.y = x * Math.sin(radian) + y * Math.cos(radian);
+        });
     };
-
-  
-
-
-
 
     function project(points) {
 
@@ -174,55 +164,29 @@ function drawPoints(points, angle) {
     });
 };
 
-function rotateZ(points, angle) {
-    points.forEach(p=>{
-        rotated_points = rotate2d(p.x, p.y, angle);
-        p.x = rotated_points[0];
-        p.y = rotated_points[1];
-        rotateZ
-    });
-};
-
-function rotate2d(x, y, radian) 
-// x′ = xcosθ− ysinθ
-// y′ = ycosθ + xsinθ
-{
-    nx = x * Math.cos(radian) - y * Math.sin(radian);
-    ny = y * Math.cos(radian) + x * Math.sin(radian);
-    return [nx, ny];
-};
-
-//not done
-function rotatePoints3d(points, angle) {
-    points.forEach(p => {
-        rotated_points = rotate2d(p.x, p.y, 0,0,angle);
-        p.x = rotated_points[0];
-        p.y = rotated_points[1];
-    });
-};
 
 
-function rotatePoints3d(points, angle) {
-    points.forEach(p => {
-        rotated_points = rotate3d(p.x, p.y, 0, 0, angle);
-        p.x = rotated_points[0];
-        p.y = rotated_points[1];
-    });
-};
+// X - Axis Rotation
+// X - axis rotation looks like Z - axis rotation
+// if replace:
 
-/*
- CX @ Origin X
- CY @ Origin Y
- X  @ Point X to be rotated
- Y  @ Point Y to be rotated
-*/
-// function rotate3d(X, Y, CX, CY, angle) {
-//     var rad = angle * Math.PI / 180.0;
-//     var nx = Math.cos(rad) * (X - CX) - Math.sin(rad) * (Y - CY) + CX;
-//     var ny = Math.sin(rad) * (X - CX) + Math.cos(rad) * (Y - CY) + CY;
+//     X axis with Y axis
+// Y axis with Z axis
+// Z axis with X axis
 
-//     return [nx, ny];
-// }
+
+
+// So we do the same replacement in the equations:
+
+//     y ' = y*cos q - z*sin q
+// z ' = y*sin q + z*cos q
+// x ' = x
+
+
+
+
+
+
 
 //------------------------------------------------------------------------------
 //  Render visual
@@ -251,10 +215,10 @@ function rotatePoints3d(points, angle) {
 
 
     rotateZ(points, radian);
-    ty = ty + 100;
+    ty = ty - 100;
     points.forEach(p => {
         ty = ty + 15;
-        context.strokeText([p.x, p.y, p.z], 0, ty);
+        context.strokeText([p.x, p.y, p.z], -200, ty);
     });
 
     project(points);
