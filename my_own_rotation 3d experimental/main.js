@@ -19,6 +19,7 @@ window.onload = function update() {
         frame = 0;
         timeNextFrame = 0;
         angle = 0;
+        zoom = 0.2;
 
     }
 
@@ -38,13 +39,13 @@ window.onload = function update() {
 
     var points = [
             {x: 100, y:-100, z:-100},
-            // {x: 100, y:-100, z:-100},
-            // {x: 100, y: 100, z:-100},
-            // {x: 100, y: 100, z:-100},
-            // {x:-100, y: 100, z: 100},
-            // {x:-100, y: 100, z: 100},
-            // {x:-100, y:-100, z: 100},
-            // {x:-100, y:-100, z: 100},
+            {x: 100, y:-100, z:-100},
+            {x: 100, y: 100, z:-100},
+            {x: 100, y: 100, z:-100},
+            {x:-100, y: 100, z: 100},
+            {x:-100, y: 100, z: 100},
+            {x:-100, y:-100, z: 100},
+            {x:-100, y:-100, z: 100},
     ];
 
     var origin = [
@@ -71,7 +72,20 @@ window.onload = function update() {
 
     };
 
-    function rotate2d(x,y,radian){
+    function rotateZ(x,y,radian)
+    // Z - Axis Rotation
+    // Z - axis rotation is identical to the 2D case:
+
+    // x' = x*cos q - y*sin q
+    // y' = x*sin q + y*cos q 
+    // z' = z
+
+    //     (cos q  sin q  0  0)
+    // Rz(q) = (-sin q  cos q  0  0)
+    // (0        0    1  0)
+    // (0        0    0  1)
+
+    {
         nx = x * Math.cos(radian) - y * Math.sin(radian);
         ny = y * Math.cos(radian) + x * Math.sin(radian);
         return[nx,ny];
@@ -80,27 +94,109 @@ window.onload = function update() {
   
 
 
-    function drawPoints(points, angle) {
-        radius = 20;
-        points.forEach(p => {
-
-            //        p.x = p.x + (width / 2) + (p.x / 2);
-            //        p.y = p.y + (height / 2) + (p.y / 2);
-            //        drawPixel(p.x, p.y, 0, 0, 0);
-
-            //        angle = performance.now() / 1000 / 6 * 2 * Math.PI;
-            x=p.x;
-            y=p.y;
+    
 
 
-            // draw ugly circles
-            context.beginPath();
-            context.fillStyle = '#fff';
-            context.arc(x, y, 10, 0, Math.PI * 2, true);
-            context.closePath();
-            context.fill();
+    // Just multiply the 
+    // normalised coordinates by the image dimensions, and round the 
+    // number off to the nearest integer value (pixel coordinates are 
+    // always round numbers, or integers if you prefer). The range P' coordinates
+    // are originally in, depends on the size of the canvas in screen space.
+    // or the sake of simplicity, we will just assume that the canvas is two 
+    // units long in each of the two dimensions(width and height), 
+    // which means that P' coordinates in screen space, are in the range 
+    // [-1, 1]. Here is the pseudo code to convert P's coordinates from 
+    // screen space to raster space:
+
+
+    // // finally, convert to raster space
+    // Vec2i P_proj_raster;
+    // P_proj_raster.x = (int)(P_proj_nor.x * width);
+    // P_proj_raster.y = (int)(P_proj_nor.y * height);
+    // if (P_proj_raster.x == width) P_proj_raster.x = width - 1;
+    // if (P_proj_raster.y == height) P_proj_raster.y = height - 1;
+
+    function project(points) {
+
+        points.forEach( p => {
+
+            // Converting points from screen space to raster space it actually 
+            // really simple.Because the coordinates P' expressed in raster space 
+            // can only be positive, we first need to normalise P's original 
+            // coordinates.In other words, convert them from whatever range they 
+            // are in originally, to the range 0, 1(when points are defined that way, 
+            // we say they are defined in NDC space.NDC stands for Normalized 
+            // Device Coordinates).Once converted to NDC space, converting the 
+            // point's coordinates to raster space is trivial:
+
+            var len = Math.sqrt(p.x * p.x + p.y * p.y)
+            p.x /= len;
+            p.y /= len;
+
+            p.x *= zoom;
+            p.y *= zoom;
+
+            //to screen cords
+
+            // Just multiply the 
+            // normalised coordinates by the image dimensions, and round the 
+            // number off to the nearest integer value (pixel coordinates are 
+            // always round numbers, or integers if you prefer). The range P' coordinates
+            // are originally in, depends on the size of the canvas in screen space.
+            // or the sake of simplicity, we will just assume that the canvas is two 
+            // units long in each of the two dimensions(width and height), 
+            // which means that P' coordinates in screen space, are in the range 
+            // [-1, 1]. Here is the pseudo code to convert P's coordinates from 
+            // screen space to raster space:
+            
+            p.x = p.x * width;
+            p.y = p.y * height;
+
+            if (p.x == width) { p.x = width - 1 };
+            if (p.y == height) { p.y = height - 1 };
+
         });
-    };
+
+    }
+
+    // int width = 64, height = 64; // dimension of the image in pixels 
+    // Vec3f P = Vec3f(-1, 2, 10);
+    // Vec2f P_proj;
+    // P_proj.x = P.x / P.z; // -0.1 
+    // P_proj.y = P.y / P.z; // 0.2 
+    // // convert from screen space coordinates to normalized coordinates
+    // Vec2f P_proj_nor;
+    // P_proj_nor.x = (P_proj.x + 1) / 2; // (-0.1 + 1) / 2 = 0.45 
+    // P_proj_nor.y = (1 - P_proj.y) / 2; // (1 - 0.2) / 2 = 0.4 
+    // // finally, convert to raster space
+    // Vec2i P_proj_raster;
+    // P_proj_raster.x = (int)(P_proj_nor.x * width);
+    // P_proj_raster.y = (int)(P_proj_nor.y * height);
+    // if (P_proj_raster.x == width) P_proj_raster.x = width - 1;
+    // if (P_proj_raster.y == height) P_proj_raster.y = height - 1; 
+
+
+function drawPoints(points, angle) {
+    radius = 20;
+    points.forEach(p => {
+
+        //        p.x = p.x + (width / 2) + (p.x / 2);
+        //        p.y = p.y + (height / 2) + (p.y / 2);
+        //        drawPixel(p.x, p.y, 0, 0, 0);
+
+        //        angle = performance.now() / 1000 / 6 * 2 * Math.PI;
+        x=p.x;
+        y=p.y;
+
+
+        // draw ugly circles
+        context.beginPath();
+        context.fillStyle = '#fff';
+        context.arc(x, y, 10, 0, Math.PI * 2, true);
+        context.closePath();
+        context.fill();
+    });
+};
 
 function rotatePoints(points,angle){
     points.forEach(p=>{
@@ -110,14 +206,32 @@ function rotatePoints(points,angle){
     });
 };
 
+function rotate2d(x, y, radian) 
+// x′ = xcosθ− ysinθ
+// y′ = ycosθ + xsinθ
+{
+    nx = x * Math.cos(radian) - y * Math.sin(radian);
+    ny = y * Math.cos(radian) + x * Math.sin(radian);
+    return [nx, ny];
+};
+
+//not done
 function rotatePoints3d(points, angle) {
     points.forEach(p => {
-        rotated_points = rotate3d(p.x, p.y, 0,0,angle);
+        rotated_points = rotate2d(p.x, p.y, 0,0,angle);
         p.x = rotated_points[0];
         p.y = rotated_points[1];
     });
 };
 
+
+function rotatePoints3d(points, angle) {
+    points.forEach(p => {
+        rotated_points = rotate3d(p.x, p.y, 0, 0, angle);
+        p.x = rotated_points[0];
+        p.y = rotated_points[1];
+    });
+};
 
 /*
  CX @ Origin X
@@ -149,14 +263,35 @@ function rotatePoints3d(points, angle) {
 
     context.strokeStyle = '#fff';
     context.strokeText([width, height, frame], 0, 0);
+
+    var ty=50;
+    // Show original points 
+    points.forEach(p=>{
+        ty = ty + 15 ;
+        context.strokeText([p.x, p.y, p.z], 0, ty);
+    });
+
+
+
+    // rotatePoints(points, radian);
+    // ty = ty + 100;
+    // points.forEach(p => {
+    //     ty = ty + 15;
+    //     context.strokeText([p.x, p.y, p.z], 0, ty);
+    // });
+
+    project(points);
+    ty=ty+100;
+    points.forEach(p => {
+        ty = ty + 15;
+        context.strokeText([p.x, p.y, p.z], 0, ty);
+    });
+
+    context.strokeText([angle], 0, 800);
+
     context.stroke();
 
-    context.strokeText([angle], 0, 100);
 
-    context.stroke();
-
-    //draw a circle
-    rotatePoints(points, radian);
     drawPoints(points);
     drawLines(points);
 
