@@ -37,15 +37,19 @@ window.onload = function update() {
 //------------------------------------------------------------------------------
 
     var points = [
-        {x:000,y:000,z:000},
-        {x:100,y:000,z:000},
-        {x:000,y:100,z:000}
+            {x: 100, y:-100, z:-100},
+            // {x: 100, y:-100, z:-100},
+            // {x: 100, y: 100, z:-100},
+            // {x: 100, y: 100, z:-100},
+            // {x:-100, y: 100, z: 100},
+            // {x:-100, y: 100, z: 100},
+            // {x:-100, y:-100, z: 100},
+            // {x:-100, y:-100, z: 100},
     ];
 
-    var origin = [{
-            x: 000,
-            y: 000,
-            z: 000
+    var origin = [
+        {
+            x: 000,y: 000, z: 000
         }
     ];
 
@@ -67,14 +71,14 @@ window.onload = function update() {
 
     };
 
-    function rotate2d(x,y,angle){
-    //    x = x * cos(angle) - y * sin(angle)
-    //    y = x * sin(angle) + y * cos(angle)
-        var rad = angle * Math.PI / 180.0;
-        nx = x * Math.cos(rad) - y * Math.sin(rad);
-        ny = y * Math.sin(rad) + y * Math.cos(rad);
-        return[nx,ny]
+    function rotate2d(x,y,radian){
+        nx = x * Math.cos(radian) - y * Math.sin(radian);
+        ny = y * Math.cos(radian) + x * Math.sin(radian);
+        return[nx,ny];
     };
+
+  
+
 
     function drawPoints(points, angle) {
         radius = 20;
@@ -121,23 +125,25 @@ function rotatePoints3d(points, angle) {
  X  @ Point X to be rotated
  Y  @ Point Y to be rotated
 */
-function rotate3d(X, Y, CX, CY, angle) {
-    var rad = angle * Math.PI / 180.0;
-    var nx = Math.cos(rad) * (X - CX) - Math.sin(rad) * (Y - CY) + CX;
-    var ny = Math.sin(rad) * (X - CX) + Math.cos(rad) * (Y - CY) + CY;
+// function rotate3d(X, Y, CX, CY, angle) {
+//     var rad = angle * Math.PI / 180.0;
+//     var nx = Math.cos(rad) * (X - CX) - Math.sin(rad) * (Y - CY) + CX;
+//     var ny = Math.sin(rad) * (X - CX) + Math.cos(rad) * (Y - CY) + CY;
 
-    return [nx, ny];
-}
+//     return [nx, ny];
+// }
 
 //------------------------------------------------------------------------------
 //  Render visual
 //------------------------------------------------------------------------------
 
-
+    //remeber that this is calculated in radians (optimize this!)
     angle = angle + 2.5;
     if (angle > 360) {
         angle = 0;
     }
+    var radian = angle * Math.PI / 180.0;
+
 
     context.translate(width / 2, height / 2);
 
@@ -150,7 +156,7 @@ function rotate3d(X, Y, CX, CY, angle) {
     context.stroke();
 
     //draw a circle
-    rotatePoints(points, angle);
+    rotatePoints(points, radian);
     drawPoints(points);
     drawLines(points);
 
