@@ -76,45 +76,21 @@ window.onload = function update() {
     // Z - Axis Rotation
     // Z - axis rotation is identical to the 2D case:
 
-    // x' = x*cos q - y*sin q
-    // y' = x*sin q + y*cos q 
+    // x' = x*cos(Θ) - y*sin(Θ)
+    // y' = x*sin(Θ) + y*cos(Θ)
     // z' = z
 
-    //     (cos q  sin q  0  0)
-    // Rz(q) = (-sin q  cos q  0  0)
-    // (0        0    1  0)
-    // (0        0    0  1)
-
     {
-        nx = x * Math.cos(radian) - y * Math.sin(radian);
-        ny = y * Math.cos(radian) + x * Math.sin(radian);
-        return[nx,ny];
+        p.x = x * Math.cos(radian) - y * Math.sin(radian);
+        p.y = x * Math.sin(radian) + y * Math.cos(radian);
+        p.z = p.z;
+        return[p.x, p.y, p.z];
     };
 
   
 
 
-    
 
-
-    // Just multiply the 
-    // normalised coordinates by the image dimensions, and round the 
-    // number off to the nearest integer value (pixel coordinates are 
-    // always round numbers, or integers if you prefer). The range P' coordinates
-    // are originally in, depends on the size of the canvas in screen space.
-    // or the sake of simplicity, we will just assume that the canvas is two 
-    // units long in each of the two dimensions(width and height), 
-    // which means that P' coordinates in screen space, are in the range 
-    // [-1, 1]. Here is the pseudo code to convert P's coordinates from 
-    // screen space to raster space:
-
-
-    // // finally, convert to raster space
-    // Vec2i P_proj_raster;
-    // P_proj_raster.x = (int)(P_proj_nor.x * width);
-    // P_proj_raster.y = (int)(P_proj_nor.y * height);
-    // if (P_proj_raster.x == width) P_proj_raster.x = width - 1;
-    // if (P_proj_raster.y == height) P_proj_raster.y = height - 1;
 
     function project(points) {
 
@@ -198,11 +174,12 @@ function drawPoints(points, angle) {
     });
 };
 
-function rotatePoints(points,angle){
+function rotateZ(points, angle) {
     points.forEach(p=>{
         rotated_points = rotate2d(p.x, p.y, angle);
         p.x = rotated_points[0];
         p.y = rotated_points[1];
+        rotateZ
     });
 };
 
@@ -273,12 +250,12 @@ function rotatePoints3d(points, angle) {
 
 
 
-    // rotatePoints(points, radian);
-    // ty = ty + 100;
-    // points.forEach(p => {
-    //     ty = ty + 15;
-    //     context.strokeText([p.x, p.y, p.z], 0, ty);
-    // });
+    rotateZ(points, radian);
+    ty = ty + 100;
+    points.forEach(p => {
+        ty = ty + 15;
+        context.strokeText([p.x, p.y, p.z], 0, ty);
+    });
 
     project(points);
     ty=ty+100;
