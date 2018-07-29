@@ -82,7 +82,7 @@ if (init==true){
 
 		var triangles = [
 
-			[7, 6, 4, "#fff", 1], 
+			{ v1: 7, v2: 6, v3: 4, color: "#fff", zbuffer: 1}, 
 			// [5, 1, 2, "#fff"],
 
 
@@ -199,18 +199,6 @@ function project(points) {
 }
 
 
-function project2(points) {
-
-	points.forEach(p => {
-		z = p.z;
-		p.x /= (p.z * zoom);
-		p.y /= (p.z * zoom);
-
-	});
-
-}
-
-
 function drawPoints(screenpoints, angle) {
 	var radius = 20;
 	var i=0;
@@ -233,15 +221,17 @@ function drawPoints(screenpoints, angle) {
 function drawTriangles(triangles, screenpoints) {
 
 
+	context.strokeText('Zbuffer', -220, -550);
+	context.strokeText(triangles[0].zbuffer, -250, -550);
 
 		triangles.forEach(triangle => {
-			if (triangle[4] == 1) {
-				context.fillStyle = triangle[3];
-				context.strokeStyle = triangle[3];
+			if (triangle.zbuffer >= 0) {
+				context.fillStyle = triangle.color;
+				context.strokeStyle = triangle.color;
 
-				context.moveTo(screenpoints[triangle[0]].x, screenpoints[triangle[0]].y); // pick up "pen," reposition
-				context.lineTo(screenpoints[triangle[1]].x, screenpoints[triangle[1]].y); // draw straight across to right
-				context.lineTo(screenpoints[triangle[2]].x, screenpoints[triangle[2]].y); // draw straight across to right
+				context.moveTo(screenpoints[triangle.v1].x, screenpoints[triangle.v1].y); // pick up "pen," reposition
+				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
+				context.lineTo(screenpoints[triangle.v3].x, screenpoints[triangle.v3].y); // draw straight across to right
 				context.closePath(); // connect end to start
 				context.fill(); // connect and fill
 				context.stroke(); // outline the shape that's been described
@@ -302,11 +292,44 @@ function crossProduct(triangle,points)
 	return[Nx,Ny,Nz];
 }
 
+function checkBehind(triangle, points) {
 
+	//get two sides of the triangle
+	x1 = screenpoints[triangle.v1].x;
+	y1 = screenpoints[triangle.v1].y;
+	z1 = screenpoints[triangle.v1].z;
+
+	x2 = screenpoints[triangle.v2].x;
+	y2 = screenpoints[triangle.v2].y;
+	z2 = screenpoints[triangle.v2].z;
+
+
+	//cross product of these sides
+	Nx = (y1 * z2) - (z1 * y2);
+	Ny = z1 * x2 - x1 * z2;
+	Nz = (x1 * y2) - (y1 * x2);
+
+	//normalize the cross product (im not sure about these sqr and div's?)
+	n = normalize(Nx, Ny, Nz);
+	Nx = n[0];
+	Ny = n[1];
+	Nz = n[2];
+
+	Nx = Math.round(Nx * 10) / 10;
+	Ny = Math.round(Ny * 10) / 10;
+	Nz = Math.round(Nz * 10) / 10;
+
+
+	context.strokeText([Nx, Ny, Nz], -200, -500);
+
+
+	return [Nz];
+}
 
 
 function backfaceCulling(triangles,points) {
-	crossProduct(triangles[0],points);
+	triangles[0].zbuffer = checkBehind(triangles[0], points);
+
 };
 
 
@@ -328,10 +351,10 @@ function backfaceCulling(triangles,points) {
     ortographic_projection(points,screenpoints);
 
      
-	drawTriangles(triangles, screenpoints);
-	drawPoints(screenpoints);
 	backfaceCulling(triangles, points);
 	// drawLines(screenpoints);
+	drawTriangles(triangles, screenpoints);
+	drawPoints(screenpoints);
 
     context.stroke();
 
