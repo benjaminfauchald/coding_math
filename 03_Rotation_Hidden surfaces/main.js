@@ -117,7 +117,7 @@ function random_rgba() {
 
 function ortographic_projection(points,screenpoints) {
 	points.forEach( p => {
-		screenpoints.push({x: p.x, y: p.y});
+		screenpoints.push({x: p.x, y: p.y, z: p.z});
 	});
 }
 
@@ -244,17 +244,17 @@ function drawTriangles(triangles, screenpoints) {
 			context.lineTo(screenpoints[triangle[1]].x, screenpoints[triangle[1]].y); // draw straight across to right
 			context.lineTo(screenpoints[triangle[2]].x, screenpoints[triangle[2]].y); // draw straight across to right
 			context.closePath(); // connect end to start
-//		context.fill(); // connect and fill
+		context.fill(); // connect and fill
 			context.stroke(); // outline the shape that's been described
 		});
 };
 
-function normalize(point) {
+function normalize(x,y,z) {
 	//formula to normalize
-	Nx = point.x;
-	Ny = point.y;
-	Nz = point.z;
-	
+	Nx = x;
+	Ny = y;
+	Nz = z;
+
 	len = Math.sqrt(Nx * Nx + Ny * Ny + Nz * Nz);
 	Nx /= len;
 	Ny /= len;
@@ -270,32 +270,49 @@ function crossProduct(triangle,points)
 
 //	x1 = points[1]
 
-	x1 = 1;
-	y1 = 3;
-	z1 = 4;
+	x1 = points[triangle[0]].x;
+	y1 = points[triangle[0]].y;
+	z1 = points[triangle[0]].z;
 
-	x2 = 2;
-	y2 = -5;
-	z2 = 8;
+	x2 = points[triangle[1]].x;
+	y2 = points[triangle[1]].y;
+	z2 = points[triangle[1]].z;
+
+	x1 = screenpoints[0].x;
+	y1 = screenpoints[0].y;
+	z1 = screenpoints[0].z;
+
+	x2 = screenpoints[1].x;
+	y2 = screenpoints[1].y;
+	z2 = screenpoints[1].z;
 
 	//cross product
 	Nx = (y1 * z2) - (z1 * y2);
 	Ny = z1 * x2 - x1 * z2;
 	Nz = (x1 * y2) - (y1 * x2);
 
+	n = normalize(Nx,Ny,Nz);
+
+	Nx = n[0];
+	Ny = n[1];
+	Nz = n[2];
+
+	Nx = Math.round(Nx * 10) / 10;
+	Ny = Math.round(Ny * 10) / 10;
+	Nz = Math.round(Nz * 10) / 10;
+
+
+	context.strokeText( [Nx, Ny, Nz], -200, - 500);
+
+
 	return[Nx,Ny,Nz];
 }
 
-function normalTriangle(points,triangle){
-
-	//find cross product of triangle
-	triangle[0].x
-
-};
 
 
-function backfaceCulling(screenpoints) {
 
+function backfaceCulling(triangles,points) {
+	crossProduct(triangles[0],points);
 };
 
 
@@ -303,57 +320,24 @@ function backfaceCulling(screenpoints) {
 //  Render visual
 //------------------------------------------------------------------------------
 
-    //remeber that this is calculated in radians (optimize this!)
-
-
-
     context.translate(width / 2, height / 2);
-
     context.strokeStyle = '#fff';
-    context.strokeText([width, height, frame], 0, 0);
+//    context.strokeText([width, height, frame], 0, 0);
 
-    var ty=50;
-    // Show original points 
-    points.forEach(p=>{
-        ty = ty + 15 ;
-        context.strokeText([p.x, p.y, p.z], 0, ty);
-    });
+	// pause rotation?
+	if (breakpoint == false) {
+		angle = currentTime;
+	};
 
-
-if (breakpoint == false) {
-
-		xrot++;
-		if (xrot > 360) {
-			xrot = 0
-		};
-		rotateX(points, xrot * Math.PI / 180.0);
-};
-
-
-	ty = ty - 100;
-	points.forEach(p => {
-		ty = ty + 15;
-		context.strokeText([p.x, p.y, p.z], 600, ty);
-	});
+				rotateX(points, (angle * 50) * Math.PI / 180.0);
 
     ortographic_projection(points,screenpoints);
-    ty=ty+100;
-    screenpoints.forEach(p => {
-        ty = ty + 15;
-        context.strokeText([p.x, p.y, p.z], -400, ty-200);
-    });
 
-
-	cp = crossProduct(triangles);
-        context.strokeText([cp[0], cp[1], cp[2]], -200, ty - 500);
      
-
-
 	drawTriangles(triangles, screenpoints);
 	drawPoints(screenpoints);
-	backfaceCulling(screenpoints);
+	backfaceCulling(triangles, points);
 	// drawLines(screenpoints);
-    context.strokeText([angle], 0, 800);
 
     context.stroke();
 
