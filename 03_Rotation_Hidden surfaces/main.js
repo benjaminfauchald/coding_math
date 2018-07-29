@@ -82,21 +82,23 @@ if (init==true){
 
 		var triangles = [
 
-			{ v1: 0, v2: 1, v3: 2, r: 0, g: 0, b: 0, zbuffer: 1}, 
-			{ v1: 0, v2: 2, v3: 3, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 0, v2: 1, v3: 2, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
+			{ v1: 0, v2: 2, v3: 3, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
 
-			{ v1: 6, v2: 5, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
-			{ v1: 7, v2: 6, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 6, v2: 5, v3: 4, r: 0, g: 0, b: 128, a: 0, zbuffer: 1}, 
+			{ v1: 7, v2: 6, v3: 4, r: 0, g: 0, b: 128, a: 0,  zbuffer: 1}, 
 
 
-			{ v1: 6, v2: 2, v3: 1, r: 0, g: 0, b: 0, zbuffer: 1}, 
-			{ v1: 6, v2: 1, v3: 5, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 6, v2: 2, v3: 1, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
+			{ v1: 6, v2: 1, v3: 5, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
 
-			{ v1: 3, v2: 7, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
-			{ v1: 3, v2: 4, v3: 0, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 3, v2: 7, v3: 4, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
+			{ v1: 3, v2: 4, v3: 0, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
 
-			{ v1: 5, v2: 1, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
-			{ v1: 1, v2: 0, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 5, v2: 1, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
+			{ v1: 1, v2: 0, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
+
+			{ v1: 8, v2: 9, v3: 10, r: 255, g: 255, b: 255, a: 255,  zbuffer: 1}, 
 
 		]
 
@@ -284,11 +286,12 @@ function drawTriangles(triangles, screenpoints) {
 
 		triangles.forEach(triangle => {
 
-			context.strokeStyle = 'WHITE';
 
+			context.strokeStyle = 'WHITE';
 			context.strokeText('Zbuffer', -220, -550 + offset_y);
 			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.color], -300, -550 + offset_y);
 			offset_y = offset_y + 20;
+			context.globalAlpha = 0.5;
 
 			context.fillStyle   = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
 			context.strokeStyle = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
@@ -299,14 +302,78 @@ function drawTriangles(triangles, screenpoints) {
 				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
 				context.lineTo(screenpoints[triangle.v3].x, screenpoints[triangle.v3].y); // draw straight across to right
 				context.closePath(); // connect end to start
-				//context.fill(); // connect and fill
-				context.stroke(); // outline the shape that's been described
+				context.fill(); // connect and fill
+//				context.stroke(); // outline the shape that's been described
 			}
-
+			context.moveTo(0,0)
 		});
 };
 
-function normalize(x,y,z) {
+
+
+function crossProduct(triangles,points)
+{
+	//Cross Product of X = (y1*z2) - (z1-y2)
+
+
+//	x1 = points[1]
+	triangle = triangles[0];
+
+	p1x = points[triangle.v1].x;
+	p1y = points[triangle.v1].y;
+	p1z = points[triangle.v1].z;
+
+	p2x = points[triangle.v2].x;
+	p2y = points[triangle.v2].y;
+	p2z = points[triangle.v2].z;
+
+	p3x = points[triangle.v3].x;
+	p3y = points[triangle.v3].y;
+	p3z = points[triangle.v3].z;
+
+	// So
+	// for a triangle p1, p2, p3,
+	// if the vector U = p2 - p1 and the vector V = p3 - p1 
+	// then the normal N = U x V and can be calculated by:
+	
+	Ux = p2x - p1x;
+	Uy = p2y - p1y;
+	Uz = p2z - p1z;
+	
+	Vx = p3x - p1x;
+	Vy = p3y - p1y;
+	Vz = p3z - p1z;
+
+
+// Quoting from http: //www.opengl.org/wiki/Calculating_a_Surface_Normal
+
+	Nx = Uy*Vz - Uz*Vy;
+	Ny = Uz*Vx - Ux*Vz;
+	Nz = Ux*Vy - Uy*Vx;
+
+	//scale
+
+	Nx /= 300;
+	Ny /= 300;
+	Nz /= 300;
+
+	context.strokeText('U', -300, -270);
+	context.strokeText([Ux, Uy, Uz], -200, -270);
+
+	context.strokeText('V', -300, -290);
+	context.strokeText([Vx, Vy, Vz], -200, -290);
+
+	context.strokeText('cross product', -300, -250);
+	context.strokeText([Nx, Ny, Nz], -200, -250);
+
+	points.push({ x: Nx, y: Ny, z: Nz});
+	points.push({ x: Nx, y: Ny, z: Nz});
+	points.push({ x: Nx, y: Ny, z: Nz});
+
+}
+
+
+function normalize(x, y, z) {
 	//formula to normalize
 	Nx = x;
 	Ny = y;
@@ -319,44 +386,6 @@ function normalize(x,y,z) {
 	return [Nx, Ny, Nz];
 }
 
-
-function crossProduct(triangle,points)
-{
-	//Cross Product of X = (y1*z2) - (z1-y2)
-
-
-//	x1 = points[1]
-
-	x1 = screenpoints[triangle[1]].x;
-	y1 = screenpoints[triangle[1]].y;
-	z1 = screenpoints[triangle[1]].z;
-
-	x2 = screenpoints[triangle[2]].x;
-	y2 = screenpoints[triangle[2]].y;
-	z2 = screenpoints[triangle[2]].z;
-
-
-	//cross product
-	Nx = (y1 * z2) - (z1 * y2);
-	Ny = z1 * x2 - x1 * z2;
-	Nz = (x1 * y2) - (y1 * x2);
-
-	n = normalize(Nx,Ny,Nz);
-
-	Nx = n[0];
-	Ny = n[1];
-	Nz = n[2];
-
-	Nx = Math.round(Nx * 10) / 10;
-	Ny = Math.round(Ny * 10) / 10;
-	Nz = Math.round(Nz * 10) / 10;
-
-
-	context.strokeText( [Nx, Ny, Nz], -200, - 500);
-
-
-	return[Nx,Ny,Nz];
-}
 
 function checkBehind(triangle, screenpoints) {
 
@@ -432,9 +461,13 @@ function renderLight(triangles) {
 		angle = currentTime;
 	};
 
-		rotateX(points, (angle * 50) * Math.PI / 180.0);
-		rotateY(points, (angle * 25) / 180.0);
-		rotateZ(points, (angle * 100) / 180.0);
+
+//		rotateX(points, (angle * 50) * Math.PI / 180.0);
+		rotateY(points, (angle * 225) / 180.0);
+//		rotateZ(points, (angle * 100) / 180.0);
+
+		crossProduct(triangles, points);
+
 
     perspective_projection(points,screenpoints);
 		//backfaceCulling(triangles, points);
@@ -442,7 +475,8 @@ function renderLight(triangles) {
 //  ortographic_projection(points, screenpoints);
 //	renderLight(triangles);
 		drawTriangles(triangles, screenpoints);
-//	drawPoints(screenpoints);
+	drawPoints(screenpoints);
+
 
     context.stroke();
 
