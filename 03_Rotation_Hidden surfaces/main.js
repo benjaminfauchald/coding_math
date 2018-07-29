@@ -200,7 +200,8 @@ function project2(points) {
 
 
 function drawPoints(screenpoints, angle) {
-    radius = 20;
+	var radius = 20;
+	var i=0;
     screenpoints.forEach(p => {
         x=p.x;
         y=p.y;
@@ -210,8 +211,11 @@ function drawPoints(screenpoints, angle) {
         context.fillStyle = '#fff';
         context.arc(x, y, 10, 0, Math.PI * 2, true);
         context.closePath();
-//        context.fill();
-    });
+        context.fill();
+
+		context.strokeText([i], x, y );
+		i++;
+	});
 };
 
 function drawConnections(screenpoints,connections){
@@ -298,7 +302,7 @@ angleY = 30
 
 
 		drawConnections(screenpoints, connections);
-//    drawPoints(screenpoints);
+    drawPoints(screenpoints);
  //   drawLines(screenpoints);
 
 
