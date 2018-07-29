@@ -85,20 +85,20 @@ if (init==true){
 			{ v1: 0, v2: 1, v3: 2, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
 			{ v1: 0, v2: 2, v3: 3, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
 
-			{ v1: 6, v2: 5, v3: 4, r: 0, g: 0, b: 128, a: 0, zbuffer: 1}, 
-			{ v1: 7, v2: 6, v3: 4, r: 0, g: 0, b: 128, a: 0,  zbuffer: 1}, 
+			// { v1: 6, v2: 5, v3: 4, r: 0, g: 0, b: 128, a: 0, zbuffer: 1}, 
+			// { v1: 7, v2: 6, v3: 4, r: 0, g: 0, b: 128, a: 0,  zbuffer: 1}, 
 
 
-			{ v1: 6, v2: 2, v3: 1, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
-			{ v1: 6, v2: 1, v3: 5, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
+			// { v1: 6, v2: 2, v3: 1, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
+			// { v1: 6, v2: 1, v3: 5, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
 
-			{ v1: 3, v2: 7, v3: 4, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
-			{ v1: 3, v2: 4, v3: 0, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
+			// { v1: 3, v2: 7, v3: 4, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
+			// { v1: 3, v2: 4, v3: 0, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
 
-			{ v1: 5, v2: 1, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
-			{ v1: 1, v2: 0, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
+			// { v1: 5, v2: 1, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
+			// { v1: 1, v2: 0, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
 
-			{ v1: 8, v2: 9, v3: 10, r: 255, g: 255, b: 255, a: 255,  zbuffer: 1}, 
+			// { v1: 8, v2: 9, v3: 10, r: 255, g: 255, b: 255, a: 255,  zbuffer: 1}, 
 
 		]
 
@@ -289,9 +289,9 @@ function drawTriangles(triangles, screenpoints) {
 
 			context.strokeStyle = 'WHITE';
 			context.strokeText('Zbuffer', -220, -550 + offset_y);
-			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.color], -300, -550 + offset_y);
+			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.color], -100, -550 + offset_y);
 			offset_y = offset_y + 20;
-			context.globalAlpha = 0.5;
+//			context.globalAlpha = 0.5;
 
 			context.fillStyle   = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
 			context.strokeStyle = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
@@ -317,58 +317,53 @@ function crossProduct(triangles,points)
 
 
 //	x1 = points[1]
-	triangle = triangles[0];
+triangles.forEach(triangle=>{
 
-	p1x = points[triangle.v1].x;
-	p1y = points[triangle.v1].y;
-	p1z = points[triangle.v1].z;
+		// So for a triangle p1, p2, p3,
+		p1x = points[triangle.v1].x;
+		p1y = points[triangle.v1].y;
+		p1z = points[triangle.v1].z;
 
-	p2x = points[triangle.v2].x;
-	p2y = points[triangle.v2].y;
-	p2z = points[triangle.v2].z;
+		p2x = points[triangle.v2].x;
+		p2y = points[triangle.v2].y;
+		p2z = points[triangle.v2].z;
 
-	p3x = points[triangle.v3].x;
-	p3y = points[triangle.v3].y;
-	p3z = points[triangle.v3].z;
+		p3x = points[triangle.v3].x;
+		p3y = points[triangle.v3].y;
+		p3z = points[triangle.v3].z;
 
-	// So
-	// for a triangle p1, p2, p3,
-	// if the vector U = p2 - p1 and the vector V = p3 - p1 
-	// then the normal N = U x V and can be calculated by:
-	
-	Ux = p2x - p1x;
-	Uy = p2y - p1y;
-	Uz = p2z - p1z;
-	
-	Vx = p3x - p1x;
-	Vy = p3y - p1y;
-	Vz = p3z - p1z;
+		// if the vector U = p2 - p1 and the vector V = p3 - p1 
+		Ux = p2x - p1x;
+		Uy = p2y - p1y;
+		Uz = p2z - p1z;
+		
+		Vx = p3x - p1x;
+		Vy = p3y - p1y;
+		Vz = p3z - p1z;
 
 
-// Quoting from http: //www.opengl.org/wiki/Calculating_a_Surface_Normal
+		// then the normal N = U x V and can be calculated by:
+		Nx = Uy*Vz - Uz*Vy;
+		Ny = Uz*Vx - Ux*Vz;
+		Nz = Ux*Vy - Uy*Vx;
 
-	Nx = Uy*Vz - Uz*Vy;
-	Ny = Uz*Vx - Ux*Vz;
-	Nz = Ux*Vy - Uy*Vx;
+		//annnnd scale
+		Nx /= 300;
+		Ny /= 300;
+		Nz /= 300;
 
-	//scale
+		context.strokeText('U', -300, -270);
+		context.strokeText([Ux, Uy, Uz], -200, -270);
 
-	Nx /= 300;
-	Ny /= 300;
-	Nz /= 300;
+		context.strokeText('V', -300, -290);
+		context.strokeText([Vx, Vy, Vz], -200, -290);
 
-	context.strokeText('U', -300, -270);
-	context.strokeText([Ux, Uy, Uz], -200, -270);
+		context.strokeText('cross product', -300, -250);
+		context.strokeText([Nx, Ny, Nz], -200, -250);
 
-	context.strokeText('V', -300, -290);
-	context.strokeText([Vx, Vy, Vz], -200, -290);
-
-	context.strokeText('cross product', -300, -250);
-	context.strokeText([Nx, Ny, Nz], -200, -250);
-
-	points.push({ x: Nx, y: Ny, z: Nz});
-	points.push({ x: Nx, y: Ny, z: Nz});
-	points.push({ x: Nx, y: Ny, z: Nz});
+		points.push({ x: Nx, y: Ny, z: Nz});
+		triangle.zbuffer = Nz;
+	});
 
 }
 
