@@ -155,6 +155,24 @@ function random_rgba() {
 	return 'rgba(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ',' + r().toFixed(1) + ')';
 }
 
+function perspective_projection(points, screenpoints) {
+	points.forEach(p => {
+
+
+
+		var c = 500;
+
+		x = p.x / (1 - p.z / c) ;
+		y = p.y / (1 - p.z / c) ;
+
+
+		screenpoints.push({
+			x: x,
+			y: y,
+			z: z
+		});
+	});
+}
 
 function ortographic_projection(points,screenpoints) {
 	points.forEach( p => {
@@ -418,10 +436,15 @@ function renderLight(triangles) {
 	rotateY(points, (angle * 25) / 180.0);
 	rotateZ(points, (angle * 100) / 180.0);
 
-    ortographic_projection(points,screenpoints);
+    perspective_projection(points,screenpoints);
 
-     
+
+	 
+	
 	backfaceCulling(triangles, points);
+
+//    ortographic_projection(points, screenpoints);
+	perspective_projection(points, screenpoints);
 	renderLight(triangles);
 	drawTriangles(triangles, screenpoints);
 //	drawPoints(screenpoints);
