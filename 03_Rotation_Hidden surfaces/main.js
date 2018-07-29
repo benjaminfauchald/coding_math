@@ -249,8 +249,34 @@ function drawTriangles(triangles, screenpoints) {
 		});
 };
 
-function normalTriangle(){
-	
+
+function crossProduct(triangle)
+{
+	//Cross Product of X = (y1*z2) - (z1-y2)
+
+	x1 = 1;
+	y1 = 3;
+	z1 = 4;
+
+	x2 = 2;
+	y2 = -5;
+	z2 = 8;
+
+tmp1 = z1 * x2;
+tmp2 = x1 * z2;
+
+	cx = (y1 * z2) - (z1 * y2);
+	cy = z1 * x2 - x1 * z2;
+	cz = (x1 * y2) - (y1 * x2);
+
+	return[cx,cy,cz];
+}
+
+function normalTriangle(points,triangle){
+
+	//find cross product of triangle
+	triangle[0].x
+
 };
 
 
@@ -304,6 +330,8 @@ if (breakpoint == false) {
     });
 
 
+	cp = crossProduct(triangles);
+        context.strokeText([cp[0], cp[1], cp[2]], -200, ty - 500);
      
 
 
