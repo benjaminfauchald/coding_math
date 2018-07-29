@@ -82,7 +82,7 @@ if (init==true){
 
 		var triangles = [
 
-			[7, 6, 4, "#fff"], 
+			[7, 6, 4, "#fff", 1], 
 			// [5, 1, 2, "#fff"],
 
 
@@ -235,17 +235,18 @@ function drawTriangles(triangles, screenpoints) {
 
 
 		triangles.forEach(triangle => {
+			if (triangle[4] == 1) {
+				context.fillStyle = triangle[3];
+				context.strokeStyle = triangle[3];
 
-			context.fillStyle = triangle[3];
-			context.strokeStyle = triangle[3];
+				context.moveTo(screenpoints[triangle[0]].x, screenpoints[triangle[0]].y); // pick up "pen," reposition
+				context.lineTo(screenpoints[triangle[1]].x, screenpoints[triangle[1]].y); // draw straight across to right
+				context.lineTo(screenpoints[triangle[2]].x, screenpoints[triangle[2]].y); // draw straight across to right
+				context.closePath(); // connect end to start
+				context.fill(); // connect and fill
+				context.stroke(); // outline the shape that's been described
+			}
 
-
-			context.moveTo(screenpoints[triangle[0]].x, screenpoints[triangle[0]].y); // pick up "pen," reposition
-			context.lineTo(screenpoints[triangle[1]].x, screenpoints[triangle[1]].y); // draw straight across to right
-			context.lineTo(screenpoints[triangle[2]].x, screenpoints[triangle[2]].y); // draw straight across to right
-			context.closePath(); // connect end to start
-		context.fill(); // connect and fill
-			context.stroke(); // outline the shape that's been described
 		});
 };
 
@@ -270,21 +271,14 @@ function crossProduct(triangle,points)
 
 //	x1 = points[1]
 
-	x1 = points[triangle[0]].x;
-	y1 = points[triangle[0]].y;
-	z1 = points[triangle[0]].z;
+	x1 = screenpoints[triangle[0]].x;
+	y1 = screenpoints[triangle[0]].y;
+	z1 = screenpoints[triangle[0]].z;
 
-	x2 = points[triangle[1]].x;
-	y2 = points[triangle[1]].y;
-	z2 = points[triangle[1]].z;
+	x2 = screenpoints[triangle[1]].x;
+	y2 = screenpoints[triangle[1]].y;
+	z2 = screenpoints[triangle[1]].z;
 
-	x1 = screenpoints[0].x;
-	y1 = screenpoints[0].y;
-	z1 = screenpoints[0].z;
-
-	x2 = screenpoints[1].x;
-	y2 = screenpoints[1].y;
-	z2 = screenpoints[1].z;
 
 	//cross product
 	Nx = (y1 * z2) - (z1 * y2);
