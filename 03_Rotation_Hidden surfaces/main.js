@@ -83,7 +83,7 @@ if (init==true){
 		var triangles = [
 
 			{ v1: 0, v2: 1, v3: 2, color: "#006", zbuffer: 0}, 
-			// { v1: 2, v2: 0, v3: 3, color: "#060", zbuffer: 0}, 
+			{ v1: 0, v2: 2, v3: 3, color: "#060", zbuffer: 0}, 
 
 		]
 
@@ -290,35 +290,43 @@ function crossProduct(triangle,points)
 function checkBehind(triangle, screenpoints) {
 
 	//get two sides of the triangle
-	x1 = screenpoints[triangle.v1].x;
-	y1 = screenpoints[triangle.v1].y;
-	z1 = screenpoints[triangle.v1].z;
+	ax = screenpoints[triangle.v1].x;
+	ay = screenpoints[triangle.v1].y;
+	az = screenpoints[triangle.v1].z;
 
-	x2 = screenpoints[triangle.v2].x;
-	y2 = screenpoints[triangle.v2].y;
-	z2 = screenpoints[triangle.v2].z;
+	bx = screenpoints[triangle.v2].x;
+	by = screenpoints[triangle.v2].y;
+	bz = screenpoints[triangle.v2].z;
 
+	cx = screenpoints[triangle.v3].x;
+	cy = screenpoints[triangle.v3].y;
+	cz = screenpoints[triangle.v3].z;
 
-	//cross product of these sides
-	Nx = (y1 * z2) - (z1 * y2);
-	Ny = z1 * x2 - x1 * z2;
-	Nz = (x1 * y2) - (y1 * x2);
+	n = normalize(ax, ay, az);
+	ax = n[0];
+	ay = n[1];
+	az = n[2];
 
-	//normalize the cross product (im not sure about these sqr and div's?)
-	n = normalize(Nx, Ny, Nz);
-	Nx = n[0];
-	Ny = n[1];
-	Nz = n[2];
+	n = normalize(bx, by, bz);
+	bx = n[0];
+	by = n[1];
+	bz = n[2];
 
-	Nx = Math.round(Nx * 10) / 10;
-	Ny = Math.round(Ny * 10) / 10;
-	Nz = Math.round(Nz * 10) / 10;
+	n = normalize(cx, cy, cz);
+	cx = n[0];
+	cy = n[1];
+	cz = n[2];
 
+	cax = cx - ax;
+	cay = cy - ay;
+	bcx = bx -cx;
+	bcy = by - cy;
 
-	context.strokeText([Nx, Ny, Nz], -200, -500);
+	zbuffer = cax * bcy - cay * bcx
+	zbuffer = Math.round(zbuffer * 10) / 10;
 
+	return(zbuffer);
 
-	return [Nz*-1];
 }
 
 
