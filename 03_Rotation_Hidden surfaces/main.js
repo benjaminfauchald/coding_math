@@ -82,21 +82,21 @@ if (init==true){
 
 		var triangles = [
 
-			{ v1: 0, v2: 1, v3: 2, color: "#002", zbuffer: 0}, 
-			{ v1: 0, v2: 2, v3: 3, color: "#002", zbuffer: 0}, 
+			{ v1: 0, v2: 1, v3: 2, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 0, v2: 2, v3: 3, r: 0, g: 0, b: 0, zbuffer: 1}, 
 
-			{ v1: 6, v2: 5, v3: 4, color: "#004", zbuffer: 0}, 
-			{ v1: 7, v2: 6, v3: 4, color: "#004", zbuffer: 0}, 
+			{ v1: 6, v2: 5, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 7, v2: 6, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
 
 
-			{ v1: 6, v2: 2, v3: 1, color: "#006", zbuffer: 0}, 
-			{ v1: 6, v2: 1, v3: 5, color: "#006", zbuffer: 0}, 
+			{ v1: 6, v2: 2, v3: 1, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 6, v2: 1, v3: 5, r: 0, g: 0, b: 0, zbuffer: 1}, 
 
-			{ v1: 3, v2: 7, v3: 4, color: "#008", zbuffer: 0}, 
-			{ v1: 3, v2: 4, v3: 0, color: "#008", zbuffer: 0}, 
+			{ v1: 3, v2: 7, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 3, v2: 4, v3: 0, r: 0, g: 0, b: 0, zbuffer: 1}, 
 
-			{ v1: 5, v2: 1, v3: 4, color: "#00a", zbuffer: 0}, 
-			{ v1: 1, v2: 0, v3: 4, color: "#00a", zbuffer: 0}, 
+			{ v1: 5, v2: 1, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
+			{ v1: 1, v2: 0, v3: 4, r: 0, g: 0, b: 0, zbuffer: 1}, 
 
 		]
 
@@ -290,8 +290,8 @@ function drawTriangles(triangles, screenpoints) {
 			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.color], -300, -550 + offset_y);
 			offset_y = offset_y + 20;
 
-			context.fillStyle = 'rgb(0, 0, ' + triangle.color + ')';
-			context.strokeStyle = 'rgb(0, 0, ' + triangle.color + ')';
+			context.fillStyle   = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
+			context.strokeStyle = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
 
 			if (triangle.zbuffer > 0) {
 				context.beginPath(); // pick up "pen," reposition
@@ -299,7 +299,7 @@ function drawTriangles(triangles, screenpoints) {
 				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
 				context.lineTo(screenpoints[triangle.v3].x, screenpoints[triangle.v3].y); // draw straight across to right
 				context.closePath(); // connect end to start
-				context.fill(); // connect and fill
+				//context.fill(); // connect and fill
 				context.stroke(); // outline the shape that's been described
 			}
 
@@ -432,21 +432,16 @@ function renderLight(triangles) {
 		angle = currentTime;
 	};
 
-	rotateX(points, (angle * 50) * Math.PI / 180.0);
-	rotateY(points, (angle * 25) / 180.0);
-	rotateZ(points, (angle * 100) / 180.0);
+		rotateX(points, (angle * 50) * Math.PI / 180.0);
+		rotateY(points, (angle * 25) / 180.0);
+		rotateZ(points, (angle * 100) / 180.0);
 
     perspective_projection(points,screenpoints);
+		//backfaceCulling(triangles, points);
 
-
-	 
-	
-	backfaceCulling(triangles, points);
-
-//    ortographic_projection(points, screenpoints);
-	perspective_projection(points, screenpoints);
-	renderLight(triangles);
-	drawTriangles(triangles, screenpoints);
+//  ortographic_projection(points, screenpoints);
+//	renderLight(triangles);
+		drawTriangles(triangles, screenpoints);
 //	drawPoints(screenpoints);
 
     context.stroke();
