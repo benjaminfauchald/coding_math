@@ -108,7 +108,44 @@ if (init==true){
 //------------------------------------------------------------------------------
 
 
+function remap(x, oMin, oMax, nMin, nMax) {
+	//range check
+	if (oMin == oMax) {
+		console.log("Warning: Zero input range");
+		return None;
+	};
 
+	if (nMin == nMax) {
+		console.log("Warning: Zero output range");
+		return None
+	}
+
+	//check reversed input range
+	var reverseInput = false;
+	oldMin = Math.min(oMin, oMax);
+	oldMax = Math.max(oMin, oMax);
+	if (oldMin != oMin) {
+		reverseInput = true;
+	}
+
+	//check reversed output range
+	var reverseOutput = false;
+	newMin = Math.min(nMin, nMax)
+	newMax = Math.max(nMin, nMax)
+	if (newMin != nMin) {
+		reverseOutput = true;
+	};
+
+	var portion = (x - oldMin) * (newMax - newMin) / (oldMax - oldMin)
+	if (reverseInput) {
+		portion = (oldMax - x) * (newMax - newMin) / (oldMax - oldMin);
+	};
+
+	var result = portion + newMin
+	if (reverseOutput) {
+		result = newMax - portion;
+	}
+};
 
 
 function random_rgba() {
@@ -121,7 +158,7 @@ function random_rgba() {
 
 function ortographic_projection(points,screenpoints) {
 	points.forEach( p => {
-		screenpoints.push({x: p.x, y: p.y, z: p.z});
+		screenpoints.push({x: p.x, y: p.y, z: p.z });
 	});
 }
 
@@ -184,13 +221,13 @@ function rotateY(points, radian) {
 function project(points) {
 
 		points.forEach( p => {
-				//normalize
-				var len = Math.sqrt(p.x * p.x + p.y * p.y)
-				p.x /= len;
-				p.y /= len;
+				// //normalize
+				// var len = Math.sqrt(p.x * p.x + p.y * p.y)
+				// p.x /= len;
+				// p.y /= len;
 
-				p.x *= zoom;
-				p.y *= zoom;
+				// p.x *= zoom;
+				// p.y *= zoom;
 
 				// to screen
 				
@@ -228,13 +265,15 @@ function drawTriangles(triangles, screenpoints) {
 
 
 		triangles.forEach(triangle => {
-    		context.strokeStyle = '#fff';
+
+			context.strokeStyle = 'WHITE';
+
 			context.strokeText('Zbuffer', -220, -550 + offset_y);
-			context.strokeText([offset_y/20+1,triangle.zbuffer], -250, -550 + offset_y);
+			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.color], -300, -550 + offset_y);
 			offset_y = offset_y + 20;
 
-			context.fillStyle = triangle.color;
-			context.strokeStyle = triangle.color;
+			context.fillStyle = 'rgb(0, 0, ' + triangle.color + ')';
+			context.strokeStyle = 'rgb(0, 0, ' + triangle.color + ')';
 
 			if (triangle.zbuffer > 0) {
 				context.beginPath(); // pick up "pen," reposition
@@ -347,11 +386,20 @@ function checkBehind(triangle, screenpoints) {
 function backfaceCulling(triangles) {
 	triangles.forEach(triangle => {
 			triangle.zbuffer = checkBehind(triangle, screenpoints);
+			triangle.color = remap(triangle.zbuffer, -0.9, 0.9, 0, 255 );
+			triangle.color = triangle.zbuffer * 255;
 
-	})
+		})
 
 };
 
+function renderLight(triangles) {
+	triangles.forEach(triangle => {
+
+		// triangle.zbuffer, oMin, oMax, nMin, nMax
+
+	});
+};
 
 //------------------------------------------------------------------------------
 //  Render visual
@@ -367,13 +415,14 @@ function backfaceCulling(triangles) {
 	};
 
 	rotateX(points, (angle * 50) * Math.PI / 180.0);
-	rotateY(points, 45 * Math.PI / 180.0);
-	rotateZ(points, 45 * Math.PI / 180.0);
+	rotateY(points, (angle * 25) / 180.0);
+	rotateZ(points, (angle * 100) / 180.0);
 
     ortographic_projection(points,screenpoints);
 
      
 	backfaceCulling(triangles, points);
+	renderLight(triangles);
 	drawTriangles(triangles, screenpoints);
 //	drawPoints(screenpoints);
 
