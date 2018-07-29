@@ -12,6 +12,7 @@ window.onload = function update() {
 
     imagedata = context.createImageData(width, height);
 
+		i=0;
 	init = true;
 
 	//Add break point so you can read debug values if you click the mouse
@@ -22,6 +23,9 @@ window.onload = function update() {
 		breakpoint = false;
 	}, false);
 
+
+
+
 requestAnimationFrame(update);
     //init
     if (!window.time) {
@@ -31,14 +35,11 @@ requestAnimationFrame(update);
         angle = 0;
 		zoom = 200;
 
-		rotationY = 1;
-		angleY = 0;
-
-		rotationX = 1;
 		angleX = 0;
-
-		rotationZ = 1;
+		angleY = 0;
 		angleZ = 0;
+		xrot = 0;
+
 		init = true;
 		breakpoint = false;
 
@@ -68,7 +69,7 @@ if (init==true){
             {x: -100,  y: -100, z: -100},
             {x: -100,  y:  100, z: -100},
 
-						{x:  100,  y:  100, z:  100},
+			{x:  100,  y:  100, z:  100},
             {x:  100,  y: -100, z:  100},
             {x: -100,  y: -100, z:  100},
             {x: -100,  y:  100, z:  100},
@@ -79,11 +80,14 @@ if (init==true){
 		
 		]
 
-		var connections = [
+		var triangles = [
+
+			[7, 6, 4, "#fff"], 
+			// [5, 1, 2, "#fff"],
 
 
-			[6, 2, 5, "#00f"], [5, 1, 2, "#00f"],
-			[7, 3, 4, "#f0f"], [4, 0, 3, "#f0f"],
+			// [6, 2, 5, "#00f"], [5, 1, 2, "#00f"],
+			// [7, 3, 4, "#f0f"], [4, 0, 3, "#f0f"],
 
 			// [0, 1, 2, "#f00"], [0, 3, 2, "#f00"],
 			// [4, 5, 7, "#0f0"], [7, 5, 6, "#0f0"],
@@ -216,7 +220,7 @@ function drawPoints(screenpoints, angle) {
 
 				// draw ugly circles
         context.beginPath();
-        context.fillStyle = '#fff';
+        context.fillStyle = '#f0f';
         context.arc(x, y, 10, 0, Math.PI * 2, true);
         context.closePath();
         context.fill();
@@ -226,29 +230,33 @@ function drawPoints(screenpoints, angle) {
 	});
 };
 
-function drawConnections(screenpoints,connections){
+function drawTriangles(triangles, screenpoints) {
 
 
 
-		connections.forEach( c => {
+		triangles.forEach(triangle => {
 
-			context.fillStyle = c[3];
-			context.strokeStyle = c[3];
+			context.fillStyle = triangle[3];
+			context.strokeStyle = triangle[3];
 
 
-			context.moveTo(screenpoints[c[0]].x, screenpoints[c[0]].y); // pick up "pen," reposition
-			context.lineTo(screenpoints[c[1]].x,  screenpoints[c[1]].y); // draw straight across to right
-			context.lineTo(screenpoints[c[2]].x, screenpoints[c[2]].y); // draw straight across to right
+			context.moveTo(screenpoints[triangle[0]].x, screenpoints[triangle[0]].y); // pick up "pen," reposition
+			context.lineTo(screenpoints[triangle[1]].x, screenpoints[triangle[1]].y); // draw straight across to right
+			context.lineTo(screenpoints[triangle[2]].x, screenpoints[triangle[2]].y); // draw straight across to right
 			context.closePath(); // connect end to start
 //		context.fill(); // connect and fill
 			context.stroke(); // outline the shape that's been described
 		});
 };
 
+function normalTriangle(){
+	
+};
 
 
+function backfaceCulling(screenpoints) {
 
-
+};
 
 
 //------------------------------------------------------------------------------
@@ -273,23 +281,14 @@ function drawConnections(screenpoints,connections){
 
 
 if (breakpoint == false) {
-		angleX = angleX + rotationX;
-		angleY = angleY + rotationY;
-		angleZ = angleZ + rotationZ;
+
+		xrot++;
+		if (xrot > 360) {
+			xrot = 0
+		};
+		rotateX(points, xrot * Math.PI / 180.0);
 };
 
-		if (angleZ > 360) { angleZ = 0; }
-		var radian = angleZ * Math.PI / 180.0;
-		rotateZ(points, radian);
-
-		if (angleX > 360) { angleX = 0; }
-		var radian = angleX * Math.PI / 180.0;
-		rotateX(points, radian);
-
-		if (angleY > 360) { angleY = 0; }
-		angleY = 30
-		var radian = angleY * Math.PI / 180.0;
-		rotateY(points, radian);
 
 	ty = ty - 100;
 	points.forEach(p => {
@@ -305,11 +304,12 @@ if (breakpoint == false) {
     });
 
 
-        context.strokeText('Breakpoint: ' + [breakpoint], 200, ty - 200);
+     
 
 
-	drawConnections(screenpoints, connections);
+	drawTriangles(triangles, screenpoints);
 	drawPoints(screenpoints);
+	backfaceCulling(screenpoints);
 	// drawLines(screenpoints);
     context.strokeText([angle], 0, 800);
 
