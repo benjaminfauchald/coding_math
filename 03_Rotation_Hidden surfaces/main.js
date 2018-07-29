@@ -249,10 +249,26 @@ function drawTriangles(triangles, screenpoints) {
 		});
 };
 
+function normalize(point) {
+	//formula to normalize
+	Nx = point.x;
+	Ny = point.y;
+	Nz = point.z;
+	
+	len = Math.sqrt(Nx * Nx + Ny * Ny + Nz * Nz);
+	Nx /= len;
+	Ny /= len;
+	Nz /= len;
+	return [Nx, Ny, Nz];
+}
 
-function crossProduct(triangle)
+
+function crossProduct(triangle,points)
 {
 	//Cross Product of X = (y1*z2) - (z1-y2)
+
+
+//	x1 = points[1]
 
 	x1 = 1;
 	y1 = 3;
@@ -262,14 +278,12 @@ function crossProduct(triangle)
 	y2 = -5;
 	z2 = 8;
 
-tmp1 = z1 * x2;
-tmp2 = x1 * z2;
+	//cross product
+	Nx = (y1 * z2) - (z1 * y2);
+	Ny = z1 * x2 - x1 * z2;
+	Nz = (x1 * y2) - (y1 * x2);
 
-	cx = (y1 * z2) - (z1 * y2);
-	cy = z1 * x2 - x1 * z2;
-	cz = (x1 * y2) - (y1 * x2);
-
-	return[cx,cy,cz];
+	return[Nx,Ny,Nz];
 }
 
 function normalTriangle(points,triangle){
