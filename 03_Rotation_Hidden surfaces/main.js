@@ -36,7 +36,7 @@ requestAnimationFrame(update);
 		zoom = 200;
 
 		angleX = 0;
-		angleY = 0;
+		angleY = 30;
 		angleZ = 0;
 		xrot = 0;
 
@@ -82,18 +82,9 @@ if (init==true){
 
 		var triangles = [
 
-			{ v1: 7, v2: 6, v3: 4, color: "#fff", zbuffer: 1}, 
-			// [5, 1, 2, "#fff"],
+			{ v1: 0, v2: 1, v3: 2, color: "#006", zbuffer: 0}, 
+			// { v1: 2, v2: 0, v3: 3, color: "#060", zbuffer: 0}, 
 
-
-			// [6, 2, 5, "#00f"], [5, 1, 2, "#00f"],
-			// [7, 3, 4, "#f0f"], [4, 0, 3, "#f0f"],
-
-			// [0, 1, 2, "#f00"], [0, 3, 2, "#f00"],
-			// [4, 5, 7, "#0f0"], [7, 5, 6, "#0f0"],
-
-			// [6, 7, 3, "#0ff"], [3, 2, 6, "#0ff"],
-			// [4, 5, 0, "#ff0"], [5, 1, 0, "#f00"],
 		]
 
 		init = false;
@@ -220,11 +211,15 @@ function drawPoints(screenpoints, angle) {
 
 function drawTriangles(triangles, screenpoints) {
 
+	var offset_y = 0; 
 
-	context.strokeText('Zbuffer', -220, -550);
-	context.strokeText(triangles[0].zbuffer, -250, -550);
 
 		triangles.forEach(triangle => {
+    		context.strokeStyle = '#fff';
+			context.strokeText('Zbuffer', -220, -550 + offset_y);
+			context.strokeText([offset_y/20+1,triangle.zbuffer], -250, -550 + offset_y);
+			offset_y = offset_y + 20;
+
 			if (triangle.zbuffer >= 0) {
 				context.fillStyle = triangle.color;
 				context.strokeStyle = triangle.color;
@@ -261,13 +256,13 @@ function crossProduct(triangle,points)
 
 //	x1 = points[1]
 
-	x1 = screenpoints[triangle[0]].x;
-	y1 = screenpoints[triangle[0]].y;
-	z1 = screenpoints[triangle[0]].z;
+	x1 = screenpoints[triangle[1]].x;
+	y1 = screenpoints[triangle[1]].y;
+	z1 = screenpoints[triangle[1]].z;
 
-	x2 = screenpoints[triangle[1]].x;
-	y2 = screenpoints[triangle[1]].y;
-	z2 = screenpoints[triangle[1]].z;
+	x2 = screenpoints[triangle[2]].x;
+	y2 = screenpoints[triangle[2]].y;
+	z2 = screenpoints[triangle[2]].z;
 
 
 	//cross product
@@ -292,7 +287,7 @@ function crossProduct(triangle,points)
 	return[Nx,Ny,Nz];
 }
 
-function checkBehind(triangle, points) {
+function checkBehind(triangle, screenpoints) {
 
 	//get two sides of the triangle
 	x1 = screenpoints[triangle.v1].x;
@@ -323,12 +318,15 @@ function checkBehind(triangle, points) {
 	context.strokeText([Nx, Ny, Nz], -200, -500);
 
 
-	return [Nz];
+	return [Nz*-1];
 }
 
 
-function backfaceCulling(triangles,points) {
-	triangles[0].zbuffer = checkBehind(triangles[0], points);
+function backfaceCulling(triangles) {
+	triangles.forEach(triangle => {
+			triangle.zbuffer = checkBehind(triangle, screenpoints);
+
+	})
 
 };
 
@@ -346,7 +344,9 @@ function backfaceCulling(triangles,points) {
 		angle = currentTime;
 	};
 
-				rotateX(points, (angle * 50) * Math.PI / 180.0);
+	rotateX(points, (angle * 50) * Math.PI / 180.0);
+	rotateY(points, 45 * Math.PI / 180.0);
+	rotateZ(points, 45 * Math.PI / 180.0);
 
     ortographic_projection(points,screenpoints);
 
