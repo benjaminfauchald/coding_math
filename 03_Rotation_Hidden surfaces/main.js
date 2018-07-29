@@ -82,8 +82,21 @@ if (init==true){
 
 		var triangles = [
 
-			{ v1: 0, v2: 1, v3: 2, color: "#006", zbuffer: 0}, 
-			{ v1: 0, v2: 2, v3: 3, color: "#060", zbuffer: 0}, 
+			{ v1: 0, v2: 1, v3: 2, color: "#002", zbuffer: 0}, 
+			{ v1: 0, v2: 2, v3: 3, color: "#002", zbuffer: 0}, 
+
+			{ v1: 6, v2: 5, v3: 4, color: "#004", zbuffer: 0}, 
+			{ v1: 7, v2: 6, v3: 4, color: "#004", zbuffer: 0}, 
+
+
+			{ v1: 6, v2: 2, v3: 1, color: "#006", zbuffer: 0}, 
+			{ v1: 6, v2: 1, v3: 5, color: "#006", zbuffer: 0}, 
+
+			{ v1: 3, v2: 7, v3: 4, color: "#008", zbuffer: 0}, 
+			{ v1: 3, v2: 4, v3: 0, color: "#008", zbuffer: 0}, 
+
+			{ v1: 5, v2: 1, v3: 4, color: "#00a", zbuffer: 0}, 
+			{ v1: 1, v2: 0, v3: 4, color: "#00a", zbuffer: 0}, 
 
 		]
 
@@ -220,11 +233,12 @@ function drawTriangles(triangles, screenpoints) {
 			context.strokeText([offset_y/20+1,triangle.zbuffer], -250, -550 + offset_y);
 			offset_y = offset_y + 20;
 
-			if (triangle.zbuffer >= 0) {
-				context.fillStyle = triangle.color;
-				context.strokeStyle = triangle.color;
+			context.fillStyle = triangle.color;
+			context.strokeStyle = triangle.color;
 
-				context.moveTo(screenpoints[triangle.v1].x, screenpoints[triangle.v1].y); // pick up "pen," reposition
+			if (triangle.zbuffer > 0) {
+				context.beginPath(); // pick up "pen," reposition
+				context.moveTo(screenpoints[triangle.v1].x, screenpoints[triangle.v1].y);
 				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
 				context.lineTo(screenpoints[triangle.v3].x, screenpoints[triangle.v3].y); // draw straight across to right
 				context.closePath(); // connect end to start
@@ -360,9 +374,8 @@ function backfaceCulling(triangles) {
 
      
 	backfaceCulling(triangles, points);
-	// drawLines(screenpoints);
 	drawTriangles(triangles, screenpoints);
-	drawPoints(screenpoints);
+//	drawPoints(screenpoints);
 
     context.stroke();
 
