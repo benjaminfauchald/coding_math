@@ -12,27 +12,35 @@ window.onload = function update() {
 
     imagedata = context.createImageData(width, height);
 
-						init = true;
+	init = true;
 
+	//Add break point so you can read debug values if you click the mouse
+	canvas.addEventListener('mousedown', function (event) {
+		breakpoint = true;
+	}, false);
+	canvas.addEventListener('mouseup', function (event) {
+		breakpoint = false;
+	}, false);
 
-    requestAnimationFrame(update);
+requestAnimationFrame(update);
     //init
     if (!window.time) {
         time = 0;
         frame = 0;
         timeNextFrame = 0;
         angle = 0;
-				zoom = 200;
+		zoom = 200;
 
-				rotationY = 1;
-				angleY = 0;
+		rotationY = 1;
+		angleY = 0;
 
-				rotationX = 1;
-				angleX = 0;
+		rotationX = 1;
+		angleX = 0;
 
-				rotationZ = 1;
-				angleZ = 0;
-				init = true;
+		rotationZ = 1;
+		angleZ = 0;
+		init = true;
+		breakpoint = false;
 
     }
 
@@ -213,7 +221,7 @@ function drawPoints(screenpoints, angle) {
         context.closePath();
         context.fill();
 
-		context.strokeText([i], x, y );
+		context.strokeText([i], p.x , p.y);
 		i++;
 	});
 };
@@ -264,28 +272,30 @@ function drawConnections(screenpoints,connections){
     });
 
 
-		// angleZ = angleZ + rotationZ;
-		// if (angleZ > 360) { angleZ = 0; }
-		// var radian = angleZ * Math.PI / 180.0;
-		// rotateZ(points, radian);
-
-		 angleX = angleX + rotationX;
-		 if (angleX > 360) { angleX = 0; }
-		 var radian = angleX * Math.PI / 180.0;
-		  rotateX(points, radian);
-
+if (breakpoint == false) {
+		angleX = angleX + rotationX;
 		angleY = angleY + rotationY;
-		if (angleY > 360) { angleY = 0; }
-angleY = 30
+		angleZ = angleZ + rotationZ;
+};
 
+		if (angleZ > 360) { angleZ = 0; }
+		var radian = angleZ * Math.PI / 180.0;
+		rotateZ(points, radian);
+
+		if (angleX > 360) { angleX = 0; }
+		var radian = angleX * Math.PI / 180.0;
+		rotateX(points, radian);
+
+		if (angleY > 360) { angleY = 0; }
+		angleY = 30
 		var radian = angleY * Math.PI / 180.0;
 		rotateY(points, radian);
 
-		ty = ty - 100;
-    points.forEach(p => {
-        ty = ty + 15;
-        context.strokeText([p.x, p.y, p.z], 600, ty);
-    });
+	ty = ty - 100;
+	points.forEach(p => {
+		ty = ty + 15;
+		context.strokeText([p.x, p.y, p.z], 600, ty);
+	});
 
     ortographic_projection(points,screenpoints);
     ty=ty+100;
@@ -295,15 +305,15 @@ angleY = 30
     });
 
 
+        context.strokeText('Breakpoint: ' + [breakpoint], 200, ty - 200);
 
+
+	drawConnections(screenpoints, connections);
+	drawPoints(screenpoints);
+	// drawLines(screenpoints);
     context.strokeText([angle], 0, 800);
 
     context.stroke();
-
-
-		drawConnections(screenpoints, connections);
-    drawPoints(screenpoints);
- //   drawLines(screenpoints);
 
 
 //------------------------------------------------------------------------------
