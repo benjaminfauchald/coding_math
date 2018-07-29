@@ -285,6 +285,8 @@ function drawTriangles(triangles, screenpoints) {
 
 	var offset_y = 0; 
 
+		var gradient = context.createLinearGradient(0, 0, 170, 0);
+
 
 		triangles.forEach(triangle => {
 
@@ -293,10 +295,11 @@ function drawTriangles(triangles, screenpoints) {
 			context.strokeText('Zbuffer', -220, -550 + offset_y);
 			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.zangle], -100, -550 + offset_y);
 			offset_y = offset_y + 20;
-//			context.globalAlpha = 0.5;
 
 			context.fillStyle   = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
 			context.strokeStyle = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
+			context.lineWidth = 0;
+			context.strokeStyle = 'rgba(0,0,0,1)';
 
 			if (triangle.zbuffer == true ) {
 				context.beginPath(); // pick up "pen," reposition
