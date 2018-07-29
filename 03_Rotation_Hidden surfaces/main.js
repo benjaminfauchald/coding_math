@@ -85,20 +85,22 @@ if (init==true){
 			{ v1: 0, v2: 1, v3: 2, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
 			{ v1: 0, v2: 2, v3: 3, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
 
-			// { v1: 6, v2: 5, v3: 4, r: 0, g: 0, b: 128, a: 0, zbuffer: 1}, 
-			// { v1: 7, v2: 6, v3: 4, r: 0, g: 0, b: 128, a: 0,  zbuffer: 1}, 
+			{ v1: 6, v2: 5, v3: 4, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
+			{ v1: 7, v2: 6, v3: 4, r: 0, g: 255, b: 0, a: 0, zbuffer: 1}, 
+
+			{ v1: 3, v2: 2, v3: 6, r: 0, g: 000, b: 255, a: 0, zbuffer: 1}, 
+			{ v1: 3, v2: 6, v3: 7, r: 0, g: 000, b: 255, a: 0, zbuffer: 1}, 
+
+			{ v1: 5, v2: 1, v3: 0, r: 0, g: 000, b: 255, a: 0, zbuffer: 1}, 
+			{ v1: 4, v2: 5, v3: 0, r: 0, g: 000, b: 255, a: 0, zbuffer: 1}, 
+
+			{ v1: 3, v2: 7, v3: 4, r: 255, g: 000, b: 000, a: 0, zbuffer: 1}, 
+			{ v1: 3, v2: 4, v3: 0, r: 255, g: 000, b: 000, a: 0, zbuffer: 1}, 
+
+			{ v1: 6, v2: 2, v3: 5, r: 255, g: 000, b: 000, a: 0, zbuffer: 1}, 
+			{ v1: 2, v2: 1, v3: 5, r: 255, g: 000, b: 000, a: 0, zbuffer: 1}, 
 
 
-			// { v1: 6, v2: 2, v3: 1, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
-			// { v1: 6, v2: 1, v3: 5, r: 0, g: 0, b: 0, a: 128,  zbuffer: 1}, 
-
-			// { v1: 3, v2: 7, v3: 4, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
-			// { v1: 3, v2: 4, v3: 0, r: 0, g: 128, b: 128, a: 0,  zbuffer: 1}, 
-
-			// { v1: 5, v2: 1, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
-			// { v1: 1, v2: 0, v3: 4, r: 0, g: 0, b: 128, a: 128,  zbuffer: 1}, 
-
-			// { v1: 8, v2: 9, v3: 10, r: 255, g: 255, b: 255, a: 255,  zbuffer: 1}, 
 
 		]
 
@@ -296,7 +298,7 @@ function drawTriangles(triangles, screenpoints) {
 			context.fillStyle   = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
 			context.strokeStyle = 'rgb(' + triangle.r + ', ' + triangle.g + ', ' + triangle.b + ')';
 
-			if (triangle.zbuffer > 0) {
+			if (triangle.zbuffer == true ) {
 				context.beginPath(); // pick up "pen," reposition
 				context.moveTo(screenpoints[triangle.v1].x, screenpoints[triangle.v1].y);
 				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
@@ -310,8 +312,31 @@ function drawTriangles(triangles, screenpoints) {
 };
 
 
+function crossProduct(a, b) {
+	return {
+		x: a.y * b.z - a.z * b.y,
+		y: a.z * b.x - a.x * b.z,
+		z: a.x * b.y - a.y * b.x
+	};
+}
 
-function crossProduct(triangles,points)
+
+function isCcw(v0, v1, v2) {
+	return (v1.x - v0.x) * (v2.y - v0.y) - (v1.y - v0.y) * (v2.x - v0.x) >= 0;
+}
+
+
+function backfaceCulling3(triangles, screenpoints) {
+	//https://kitsunegames.com/post/development/2016/07/11/canvas3d-3d-rendering-in-javascript/
+	triangles.forEach(triangle => {
+
+			context.strokeText('screenpoint', -350, -230);
+			context.strokeText([screenpoints[triangle.v1].x], -250, -230);
+			
+			triangle.zbuffer = isCcw(screenpoints[triangle.v1], screenpoints[triangle.v2], screenpoints[triangle.v3])
+	});
+}
+function backfaceCulling2(triangles,screenpoints)
 {
 	//Cross Product of X = (y1*z2) - (z1-y2)
 
@@ -320,17 +345,17 @@ function crossProduct(triangles,points)
 triangles.forEach(triangle=>{
 
 		// So for a triangle p1, p2, p3,
-		p1x = points[triangle.v1].x;
-		p1y = points[triangle.v1].y;
-		p1z = points[triangle.v1].z;
+		p1x = screenpoints[triangle.v1].x;
+		p1y = screenpoints[triangle.v1].y;
+		p1z = screenpoints[triangle.v1].z;
 
-		p2x = points[triangle.v2].x;
-		p2y = points[triangle.v2].y;
-		p2z = points[triangle.v2].z;
+		p2x = screenpoints[triangle.v2].x;
+		p2y = screenpoints[triangle.v2].y;
+		p2z = screenpoints[triangle.v2].z;
 
-		p3x = points[triangle.v3].x;
-		p3y = points[triangle.v3].y;
-		p3z = points[triangle.v3].z;
+		p3x = screenpoints[triangle.v3].x;
+		p3y = screenpoints[triangle.v3].y;
+		p3z = screenpoints[triangle.v3].z;
 
 		// if the vector U = p2 - p1 and the vector V = p3 - p1 
 		Ux = p2x - p1x;
@@ -352,14 +377,36 @@ triangles.forEach(triangle=>{
 		Ny /= 300;
 		Nz /= 300;
 
-		context.strokeText('U', -300, -270);
+		context.strokeText('U', -350, -270);
 		context.strokeText([Ux, Uy, Uz], -200, -270);
 
-		context.strokeText('V', -300, -290);
+		context.strokeText('V', -350, -290);
 		context.strokeText([Vx, Vy, Vz], -200, -290);
 
-		context.strokeText('cross product', -300, -250);
+		context.strokeText('cross product', -350, -250);
 		context.strokeText([Nx, Ny, Nz], -200, -250);
+
+
+n = normalize(Nx,Ny,Nz);
+Nx = n[0];
+Ny = n[1];
+Nz = n[2];
+pi=3.1415;
+context.strokeText('normalised cross product', -350, -230);
+		context.strokeText([Nx, Ny, Nz], -200, -230);
+
+var zAngle
+zAngle = Math.atan2(Nz, Nx) - Math.atan2(0, 0);
+zAngle = zAngle * 360 / (2 * pi);
+if (zAngle < 0) {
+	zAngle = zAngle + 360;
+}
+
+context.strokeText('atan cross product', -350, -200);
+context.strokeText([zAngle], -200, -180);
+
+triangle.zangle = zAngle
+
 
 		points.push({ x: Nx, y: Ny, z: Nz});
 		triangle.zbuffer = Nz;
@@ -457,20 +504,21 @@ function renderLight(triangles) {
 	};
 
 
-//		rotateX(points, (angle * 50) * Math.PI / 180.0);
+		rotateX(points, (angle * 50) * Math.PI / 180.0);
 		rotateY(points, (angle * 225) / 180.0);
-//		rotateZ(points, (angle * 100) / 180.0);
+		rotateZ(points, (angle * 100) / 180.0);
 
-		crossProduct(triangles, points);
 
 
     perspective_projection(points,screenpoints);
+		backfaceCulling3(triangles, screenpoints);
+
 		//backfaceCulling(triangles, points);
 
 //  ortographic_projection(points, screenpoints);
 //	renderLight(triangles);
 		drawTriangles(triangles, screenpoints);
-	drawPoints(screenpoints);
+//	drawPoints(screenpoints);
 
 
     context.stroke();
