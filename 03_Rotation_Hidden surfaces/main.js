@@ -291,7 +291,7 @@ function drawTriangles(triangles, screenpoints) {
 
 			context.strokeStyle = 'WHITE';
 			context.strokeText('Zbuffer', -220, -550 + offset_y);
-			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.color], -100, -550 + offset_y);
+			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.zangle], -100, -550 + offset_y);
 			offset_y = offset_y + 20;
 //			context.globalAlpha = 0.5;
 
@@ -336,26 +336,26 @@ function backfaceCulling3(triangles, screenpoints) {
 			triangle.zbuffer = isCcw(screenpoints[triangle.v1], screenpoints[triangle.v2], screenpoints[triangle.v3])
 	});
 }
-function backfaceCulling2(triangles,screenpoints)
+function calcLight(triangles,screenpoints)
 {
 	//Cross Product of X = (y1*z2) - (z1-y2)
 
 
 //	x1 = points[1]
-triangles.forEach(triangle=>{
+	triangles.forEach(triangle=>{
 
 		// So for a triangle p1, p2, p3,
-		p1x = screenpoints[triangle.v1].x;
-		p1y = screenpoints[triangle.v1].y;
-		p1z = screenpoints[triangle.v1].z;
+		p1x = points[triangle.v1].x;
+		p1y = points[triangle.v1].y;
+		p1z = points[triangle.v1].z;
 
-		p2x = screenpoints[triangle.v2].x;
-		p2y = screenpoints[triangle.v2].y;
-		p2z = screenpoints[triangle.v2].z;
+		p2x = points[triangle.v2].x;
+		p2y = points[triangle.v2].y;
+		p2z = points[triangle.v2].z;
 
-		p3x = screenpoints[triangle.v3].x;
-		p3y = screenpoints[triangle.v3].y;
-		p3z = screenpoints[triangle.v3].z;
+		p3x = points[triangle.v3].x;
+		p3y = points[triangle.v3].y;
+		p3z = points[triangle.v3].z;
 
 		// if the vector U = p2 - p1 and the vector V = p3 - p1 
 		Ux = p2x - p1x;
@@ -387,29 +387,23 @@ triangles.forEach(triangle=>{
 		context.strokeText([Nx, Ny, Nz], -200, -250);
 
 
-n = normalize(Nx,Ny,Nz);
-Nx = n[0];
-Ny = n[1];
-Nz = n[2];
-pi=3.1415;
-context.strokeText('normalised cross product', -350, -230);
-		context.strokeText([Nx, Ny, Nz], -200, -230);
-
-var zAngle
-zAngle = Math.atan2(Nz, Nx) - Math.atan2(0, 0);
-zAngle = zAngle * 360 / (2 * pi);
-if (zAngle < 0) {
-	zAngle = zAngle + 360;
-}
-
-context.strokeText('atan cross product', -350, -200);
-context.strokeText([zAngle], -200, -180);
-
-triangle.zangle = zAngle
+		n = normalize(Nx,Ny,Nz);
+		Nx = n[0];
+		Ny = n[1];
+		Nz = n[2];
+		pi=3.1415;
+		context.strokeText('normalised cross product', -350, -230);
+				context.strokeText([Nx, Ny, Nz], -200, -230);
 
 
-		points.push({ x: Nx, y: Ny, z: Nz});
-		triangle.zbuffer = Nz;
+
+	triangle.zangle = Nz;
+	triangle.r = triangle.r * Nz;
+	triangle.g = triangle.g * Nz;
+	triangle.b = triangle.b * Nz;
+
+
+
 	});
 
 }
@@ -516,7 +510,7 @@ function renderLight(triangles) {
 		//backfaceCulling(triangles, points);
 
 //  ortographic_projection(points, screenpoints);
-//	renderLight(triangles);
+		calcLight(triangles);
 		drawTriangles(triangles, screenpoints);
 //	drawPoints(screenpoints);
 
