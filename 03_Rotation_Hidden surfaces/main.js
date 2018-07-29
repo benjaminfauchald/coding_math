@@ -12,6 +12,7 @@ window.onload = function update() {
 
     imagedata = context.createImageData(width, height);
 
+		i=0;
 	init = true;
 
 	//Add break point so you can read debug values if you click the mouse
@@ -22,6 +23,9 @@ window.onload = function update() {
 		breakpoint = false;
 	}, false);
 
+
+
+
 requestAnimationFrame(update);
     //init
     if (!window.time) {
@@ -31,14 +35,11 @@ requestAnimationFrame(update);
         angle = 0;
 		zoom = 200;
 
-		rotationY = 1;
-		angleY = 0;
-
-		rotationX = 1;
 		angleX = 0;
-
-		rotationZ = 1;
+		angleY = 30;
 		angleZ = 0;
+		xrot = 0;
+
 		init = true;
 		breakpoint = false;
 
@@ -68,7 +69,7 @@ if (init==true){
             {x: -100,  y: -100, z: -100},
             {x: -100,  y:  100, z: -100},
 
-						{x:  100,  y:  100, z:  100},
+			{x:  100,  y:  100, z:  100},
             {x:  100,  y: -100, z:  100},
             {x: -100,  y: -100, z:  100},
             {x: -100,  y:  100, z:  100},
@@ -79,17 +80,24 @@ if (init==true){
 		
 		]
 
-		var connections = [
+		var triangles = [
+
+			{ v1: 0, v2: 1, v3: 2, color: "#002", zbuffer: 0}, 
+			{ v1: 0, v2: 2, v3: 3, color: "#002", zbuffer: 0}, 
+
+			{ v1: 6, v2: 5, v3: 4, color: "#004", zbuffer: 0}, 
+			{ v1: 7, v2: 6, v3: 4, color: "#004", zbuffer: 0}, 
 
 
-			[6, 2, 5, "#00f"], [5, 1, 2, "#00f"],
-			[7, 3, 4, "#f0f"], [4, 0, 3, "#f0f"],
+			{ v1: 6, v2: 2, v3: 1, color: "#006", zbuffer: 0}, 
+			{ v1: 6, v2: 1, v3: 5, color: "#006", zbuffer: 0}, 
 
-			// [0, 1, 2, "#f00"], [0, 3, 2, "#f00"],
-			// [4, 5, 7, "#0f0"], [7, 5, 6, "#0f0"],
+			{ v1: 3, v2: 7, v3: 4, color: "#008", zbuffer: 0}, 
+			{ v1: 3, v2: 4, v3: 0, color: "#008", zbuffer: 0}, 
 
-			// [6, 7, 3, "#0ff"], [3, 2, 6, "#0ff"],
-			// [4, 5, 0, "#ff0"], [5, 1, 0, "#f00"],
+			{ v1: 5, v2: 1, v3: 4, color: "#00a", zbuffer: 0}, 
+			{ v1: 1, v2: 0, v3: 4, color: "#00a", zbuffer: 0}, 
+
 		]
 
 		init = false;
@@ -100,7 +108,44 @@ if (init==true){
 //------------------------------------------------------------------------------
 
 
+function remap(x, oMin, oMax, nMin, nMax) {
+	//range check
+	if (oMin == oMax) {
+		console.log("Warning: Zero input range");
+		return None;
+	};
 
+	if (nMin == nMax) {
+		console.log("Warning: Zero output range");
+		return None
+	}
+
+	//check reversed input range
+	var reverseInput = false;
+	oldMin = Math.min(oMin, oMax);
+	oldMax = Math.max(oMin, oMax);
+	if (oldMin != oMin) {
+		reverseInput = true;
+	}
+
+	//check reversed output range
+	var reverseOutput = false;
+	newMin = Math.min(nMin, nMax)
+	newMax = Math.max(nMin, nMax)
+	if (newMin != nMin) {
+		reverseOutput = true;
+	};
+
+	var portion = (x - oldMin) * (newMax - newMin) / (oldMax - oldMin)
+	if (reverseInput) {
+		portion = (oldMax - x) * (newMax - newMin) / (oldMax - oldMin);
+	};
+
+	var result = portion + newMin
+	if (reverseOutput) {
+		result = newMax - portion;
+	}
+};
 
 
 function random_rgba() {
@@ -113,7 +158,7 @@ function random_rgba() {
 
 function ortographic_projection(points,screenpoints) {
 	points.forEach( p => {
-		screenpoints.push({x: p.x, y: p.y});
+		screenpoints.push({x: p.x, y: p.y, z: p.z });
 	});
 }
 
@@ -176,13 +221,13 @@ function rotateY(points, radian) {
 function project(points) {
 
 		points.forEach( p => {
-				//normalize
-				var len = Math.sqrt(p.x * p.x + p.y * p.y)
-				p.x /= len;
-				p.y /= len;
+				// //normalize
+				// var len = Math.sqrt(p.x * p.x + p.y * p.y)
+				// p.x /= len;
+				// p.y /= len;
 
-				p.x *= zoom;
-				p.y *= zoom;
+				// p.x *= zoom;
+				// p.y *= zoom;
 
 				// to screen
 				
@@ -195,18 +240,6 @@ function project(points) {
 }
 
 
-function project2(points) {
-
-	points.forEach(p => {
-		z = p.z;
-		p.x /= (p.z * zoom);
-		p.y /= (p.z * zoom);
-
-	});
-
-}
-
-
 function drawPoints(screenpoints, angle) {
 	var radius = 20;
 	var i=0;
@@ -216,7 +249,7 @@ function drawPoints(screenpoints, angle) {
 
 				// draw ugly circles
         context.beginPath();
-        context.fillStyle = '#fff';
+        context.fillStyle = '#f0f';
         context.arc(x, y, 10, 0, Math.PI * 2, true);
         context.closePath();
         context.fill();
@@ -226,92 +259,172 @@ function drawPoints(screenpoints, angle) {
 	});
 };
 
-function drawConnections(screenpoints,connections){
+function drawTriangles(triangles, screenpoints) {
+
+	var offset_y = 0; 
 
 
+		triangles.forEach(triangle => {
 
-		connections.forEach( c => {
+			context.strokeStyle = 'WHITE';
 
-			context.fillStyle = c[3];
-			context.strokeStyle = c[3];
+			context.strokeText('Zbuffer', -220, -550 + offset_y);
+			context.strokeText([offset_y/20+1,triangle.zbuffer, triangle.color], -300, -550 + offset_y);
+			offset_y = offset_y + 20;
 
+			context.fillStyle = 'rgb(0, 0, ' + triangle.color + ')';
+			context.strokeStyle = 'rgb(0, 0, ' + triangle.color + ')';
 
-			context.moveTo(screenpoints[c[0]].x, screenpoints[c[0]].y); // pick up "pen," reposition
-			context.lineTo(screenpoints[c[1]].x,  screenpoints[c[1]].y); // draw straight across to right
-			context.lineTo(screenpoints[c[2]].x, screenpoints[c[2]].y); // draw straight across to right
-			context.closePath(); // connect end to start
-//		context.fill(); // connect and fill
-			context.stroke(); // outline the shape that's been described
+			if (triangle.zbuffer > 0) {
+				context.beginPath(); // pick up "pen," reposition
+				context.moveTo(screenpoints[triangle.v1].x, screenpoints[triangle.v1].y);
+				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
+				context.lineTo(screenpoints[triangle.v3].x, screenpoints[triangle.v3].y); // draw straight across to right
+				context.closePath(); // connect end to start
+				context.fill(); // connect and fill
+				context.stroke(); // outline the shape that's been described
+			}
+
 		});
 };
 
+function normalize(x,y,z) {
+	//formula to normalize
+	Nx = x;
+	Ny = y;
+	Nz = z;
+
+	len = Math.sqrt(Nx * Nx + Ny * Ny + Nz * Nz);
+	Nx /= len;
+	Ny /= len;
+	Nz /= len;
+	return [Nx, Ny, Nz];
+}
 
 
+function crossProduct(triangle,points)
+{
+	//Cross Product of X = (y1*z2) - (z1-y2)
 
 
+//	x1 = points[1]
 
+	x1 = screenpoints[triangle[1]].x;
+	y1 = screenpoints[triangle[1]].y;
+	z1 = screenpoints[triangle[1]].z;
+
+	x2 = screenpoints[triangle[2]].x;
+	y2 = screenpoints[triangle[2]].y;
+	z2 = screenpoints[triangle[2]].z;
+
+
+	//cross product
+	Nx = (y1 * z2) - (z1 * y2);
+	Ny = z1 * x2 - x1 * z2;
+	Nz = (x1 * y2) - (y1 * x2);
+
+	n = normalize(Nx,Ny,Nz);
+
+	Nx = n[0];
+	Ny = n[1];
+	Nz = n[2];
+
+	Nx = Math.round(Nx * 10) / 10;
+	Ny = Math.round(Ny * 10) / 10;
+	Nz = Math.round(Nz * 10) / 10;
+
+
+	context.strokeText( [Nx, Ny, Nz], -200, - 500);
+
+
+	return[Nx,Ny,Nz];
+}
+
+function checkBehind(triangle, screenpoints) {
+
+	//get two sides of the triangle
+	ax = screenpoints[triangle.v1].x;
+	ay = screenpoints[triangle.v1].y;
+	az = screenpoints[triangle.v1].z;
+
+	bx = screenpoints[triangle.v2].x;
+	by = screenpoints[triangle.v2].y;
+	bz = screenpoints[triangle.v2].z;
+
+	cx = screenpoints[triangle.v3].x;
+	cy = screenpoints[triangle.v3].y;
+	cz = screenpoints[triangle.v3].z;
+
+	n = normalize(ax, ay, az);
+	ax = n[0];
+	ay = n[1];
+	az = n[2];
+
+	n = normalize(bx, by, bz);
+	bx = n[0];
+	by = n[1];
+	bz = n[2];
+
+	n = normalize(cx, cy, cz);
+	cx = n[0];
+	cy = n[1];
+	cz = n[2];
+
+	cax = cx - ax;
+	cay = cy - ay;
+	bcx = bx -cx;
+	bcy = by - cy;
+
+	zbuffer = cax * bcy - cay * bcx
+	zbuffer = Math.round(zbuffer * 10) / 10;
+
+	return(zbuffer);
+
+}
+
+
+function backfaceCulling(triangles) {
+	triangles.forEach(triangle => {
+			triangle.zbuffer = checkBehind(triangle, screenpoints);
+			triangle.color = remap(triangle.zbuffer, -0.9, 0.9, 0, 255 );
+			triangle.color = triangle.zbuffer * 255;
+
+		})
+
+};
+
+function renderLight(triangles) {
+	triangles.forEach(triangle => {
+
+		// triangle.zbuffer, oMin, oMax, nMin, nMax
+
+	});
+};
 
 //------------------------------------------------------------------------------
 //  Render visual
 //------------------------------------------------------------------------------
 
-    //remeber that this is calculated in radians (optimize this!)
-
-
-
     context.translate(width / 2, height / 2);
-
     context.strokeStyle = '#fff';
-    context.strokeText([width, height, frame], 0, 0);
+//    context.strokeText([width, height, frame], 0, 0);
 
-    var ty=50;
-    // Show original points 
-    points.forEach(p=>{
-        ty = ty + 15 ;
-        context.strokeText([p.x, p.y, p.z], 0, ty);
-    });
+	// pause rotation?
+	if (breakpoint == false) {
+		angle = currentTime;
+	};
 
-
-if (breakpoint == false) {
-		angleX = angleX + rotationX;
-		angleY = angleY + rotationY;
-		angleZ = angleZ + rotationZ;
-};
-
-		if (angleZ > 360) { angleZ = 0; }
-		var radian = angleZ * Math.PI / 180.0;
-		rotateZ(points, radian);
-
-		if (angleX > 360) { angleX = 0; }
-		var radian = angleX * Math.PI / 180.0;
-		rotateX(points, radian);
-
-		if (angleY > 360) { angleY = 0; }
-		angleY = 30
-		var radian = angleY * Math.PI / 180.0;
-		rotateY(points, radian);
-
-	ty = ty - 100;
-	points.forEach(p => {
-		ty = ty + 15;
-		context.strokeText([p.x, p.y, p.z], 600, ty);
-	});
+	rotateX(points, (angle * 50) * Math.PI / 180.0);
+	rotateY(points, (angle * 25) / 180.0);
+	rotateZ(points, (angle * 100) / 180.0);
 
     ortographic_projection(points,screenpoints);
-    ty=ty+100;
-    screenpoints.forEach(p => {
-        ty = ty + 15;
-        context.strokeText([p.x, p.y, p.z], -400, ty-200);
-    });
 
-
-        context.strokeText('Breakpoint: ' + [breakpoint], 200, ty - 200);
-
-
-	drawConnections(screenpoints, connections);
-	drawPoints(screenpoints);
-	// drawLines(screenpoints);
-    context.strokeText([angle], 0, 800);
+     
+	backfaceCulling(triangles, points);
+	renderLight(triangles);
+	drawTriangles(triangles, screenpoints);
+//	drawPoints(screenpoints);
 
     context.stroke();
 
