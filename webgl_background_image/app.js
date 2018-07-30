@@ -132,17 +132,23 @@ var InitDemo = function () {
 		
 	var boxIndices = [
 
+		// front // clockwise
+		3, 0, 1, 	1, 2, 3,
+		// back (anti clockwise from same view, or rotate towards you to see it clockwise)
+		5, 4, 7, 	7, 6, 5,
+
+		4, 0, 3, 	3, 7, 4,
+		1, 5, 6, 	6, 2, 1,
+
+		3, 2, 6, 	6, 7, 3,
+		0, 4, 5, 	5, 1, 0,
+
+		// If you want to see the inside faces you need to do a face for them here or disable culling
+		// Example for cube
 		// // front
 		// 1, 0, 3, //anti clockwise
 		// 3, 2, 1,
 
-		// back
-		5, 4, 7, // anti clockwise
-		7, 6, 5,
-
-		// front
-		3, 0, 1, // clockwise
-		1, 2, 3, 
 		// // back
 		// 4, 5, 6, // clockwise
 		// 6, 7, 4,
