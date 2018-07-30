@@ -61,7 +61,7 @@ var InitDemo = function () {
 	gl.clearColor(0.75, 0.85, 0.8, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.enable(gl.DEPTH_TEST);
-//	gl.enable(gl.CULL_FACE);
+	gl.enable(gl.CULL_FACE);
 	gl.frontFace(gl.CCW);
 	gl.cullFace(gl.BACK);
 
@@ -114,27 +114,38 @@ var InitDemo = function () {
 
 		// Top
 
-		-1.0,  1.0,  1.0, 	255, 0.5, 0.5, 	0.5, 
-		 1.0,  1.0,  1.0, 	1, 0.5, 0.5, 	0.5,
-		 1.0, -1.0,  1.0, 	1, 0.5, 0.5, 	0.5,
-		-1.0, -1.0,  1.0, 	1, 0.5, 0.5, 	0.5,
+		-1.0,  1.0,  -1.0, 	0, 0, 0.5, 	0.5, 
+		 1.0,  1.0,  -1.0, 	0, 0, 0.5, 	0.5,
+		 1.0, -1.0,  -1.0, 	0, 0, 0.5, 	0.5,
+		-1.0, -1.0,  -1.0, 	0, 0, 0.5, 	0.5,
 
 		// Left
-		-1.0,  1.0, -1.0, 0.75, 0.25, 0.5, 0.2, 
-		 1.0,  1.0, -1.0, 0.75, 0.25, 0.5, 0.2, 
-		 1.0, -1.0, -1.0, 0.75, 0.25, 0.5, 0.2, 
-		-1.0, -1.0, -1.0, 0.75, 0.25, 0.5, 0.2,
+		-1.0,  1.0, 1.0, 0.75, 0.25, 0, 0.5, 
+		 1.0,  1.0, 1.0, 0.75, 0.25, 0, 0.5, 
+		 1.0, -1.0, 1.0, 0.75, 0.25, 0, 0.5, 
+		-1.0, -1.0, 1.0, 0.75, 0.25, 0, 0.5,
 
 	];
 
+		//triagles must be drawn clockwise RELATIVE to their own poistion
+		//rotate to face the camera to make it easier
+		
 	var boxIndices = [
-		// Top
-		3, 0, 1,
-		1, 2, 3,
 
-		// Left
+		// // front
+		// 1, 0, 3, //anti clockwise
+		// 3, 2, 1,
+
+		// back
+		5, 4, 7, // anti clockwise
 		7, 6, 5,
-		7,5,4
+
+		// front
+		3, 0, 1, // clockwise
+		1, 2, 3, 
+		// // back
+		// 4, 5, 6, // clockwise
+		// 6, 7, 4,
 
 
 
