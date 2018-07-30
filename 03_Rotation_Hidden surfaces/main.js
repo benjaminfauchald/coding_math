@@ -161,15 +161,9 @@ function random_rgba() {
 
 function perspective_projection(points, screenpoints) {
 	points.forEach(p => {
-
-
-
 		var c = 500;
-
 		x = p.x / (1 - p.z / c) ;
 		y = p.y / (1 - p.z / c) ;
-
-
 		screenpoints.push({
 			x: x,
 			y: y,
@@ -262,6 +256,55 @@ function project(points) {
 }
 
 
+
+
+
+
+
+function fillTriangle(imageData, v0, v1, v2) {
+	var minX = Math.floor(Math.min(v0.x, v1.x, v2.x));
+	var maxX = Math.ceil(Math.max(v0.x, v1.x, v2.x));
+	var minY = Math.floor(Math.min(v0.y, v1.y, v2.y));
+	var maxY = Math.ceil(Math.max(v0.y, v1.y, v2.y));
+
+	var imageData = imageData.data;
+	var width = imageData.width;
+
+				for (var i = 0; i < imageData.length; i += 4) {
+					imageData[i + 0] = 255;
+					imageData[i + 1] = 255;
+					imageData[i + 2] = 0;
+					imageData[i + 3] = 255;
+				}
+
+	// p is our 2D pixel location point
+	var p = {};
+
+	for (var y = minY; y < maxY; y++) {
+		for (var x = minX; x < maxX; x++) {
+			// sample from the center of the pixel, not the top-left corner
+			p.x = x + 0.5;
+			p.y = y + 0.5;
+
+			// if the point is not inside our polygon, skip fragment
+			if (cross(v1, v2, p) < 0 || cross(v2, v0, p) < 0 || cross(v0, v1, p) < 0) {
+				continue;
+			}
+
+			// set pixel
+			var index = (y * width + x) * 4;
+			imageData[index] = 255;
+			imageData[index + 1] = 255;
+			imageData[index + 2] = 255;
+			imageData[index + 3] = 255;
+		}
+	}
+	context.putImageData(imageData, width, height);
+}
+	
+
+
+
 function drawPoints(screenpoints, angle) {
 	var radius = 20;
 	var i=0;
@@ -301,16 +344,24 @@ function drawTriangles(triangles, screenpoints) {
 			context.lineWidth = 0;
 			context.strokeStyle = 'rgba(0,0,0,1)';
 
-			if (triangle.zbuffer == true ) {
-				context.beginPath(); // pick up "pen," reposition
-				context.moveTo(screenpoints[triangle.v1].x, screenpoints[triangle.v1].y);
-				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
-				context.lineTo(screenpoints[triangle.v3].x, screenpoints[triangle.v3].y); // draw straight across to right
-				context.closePath(); // connect end to start
-				context.fill(); // connect and fill
-//				context.stroke(); // outline the shape that's been described
-			}
-			context.moveTo(0,0)
+			var imageData = context.createImageData(width, height);
+
+
+
+
+			fillTriangle(imageData, triangle.v1, triangle.v2, triangle.v3);
+			context.putImageData(imageData, 10, 10);
+
+// 			if (triangle.zbuffer == true ) {
+// 				context.beginPath(); // pick up "pen," reposition
+// 				context.moveTo(screenpoints[triangle.v1].x, screenpoints[triangle.v1].y);
+// 				context.lineTo(screenpoints[triangle.v2].x, screenpoints[triangle.v2].y); // draw straight across to right
+// 				context.lineTo(screenpoints[triangle.v3].x, screenpoints[triangle.v3].y); // draw straight across to right
+// 				context.closePath(); // connect end to start
+// 				context.fill(); // connect and fill
+// //				context.stroke(); // outline the shape that's been described
+// 			}
+// 			context.moveTo(0,0)
 		});
 };
 
@@ -516,7 +567,6 @@ function renderLight(triangles) {
 		calcLight(triangles);
 		drawTriangles(triangles, screenpoints);
 //	drawPoints(screenpoints);
-
 
     context.stroke();
 
