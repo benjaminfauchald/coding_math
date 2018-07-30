@@ -11,8 +11,47 @@
 			Your browser does not support HTML5
 		</canvas>
 		<br />
-		<i>Demo is above this text</i>
-<img id="fixed" class="fixed" src='logo.jpg'>
+		<canvas id="canvas" name="canvas" width="640" height="480">
+			Sorry, but it looks like your browser does not support the Canvas tag.
+		</canvas>
+		<script src="misc.js"></script>
+
+<script>
+
+function generateSquare(radius,origin,points){
+    var radius = 3;
+    var origin = {x:0, y:0, z:0};
+
+var point = [{x:0, y:0, z:0}];
+
+var p1 =  point;
+var p2 =  point;
+var p3 =  point;
+var p4 =  point;
+
+	x = origin.x;
+ 	y = origin.y;
+ 	z = origin.z;
+
+	p1.x = x - radius;
+ 	p1.y = y + radius;
+
+	p2.x = x + radius;
+ 	p2.y = y - radius;
+
+	p3.x = x + radius;
+ 	p3.y = y + radius;
+
+	p4.x = x - radius;
+	p4.y = y + radius;
+	 
+	points.push(p1.x, p1.y, z);
+	points.push(p2.x, p2.y, z);
+	points.push(p3.x, p3.y, z);
+	points.push(p4.x, p4.y, z);
+
+};
+</script>
 		<script src="gl-matrix.js"></script>
 		<script src="app.js"></script>
 	</body>
