@@ -285,6 +285,13 @@ function generateSquare(radius, origin, vertices, mesh) {
 		context.strokeStyle = 'blue';
 		context.strokeText('Time: ' + [currentTime], 00, 100);
 		context.stroke;
+
+
+		var query = gl.createQuery();
+		gl.beginQuery(gl.ANY_SAMPLES_PASSED, query);
+
+		var result = gl.getQueryParameters(query, gl.QUERY_RESULT);
+		
 	};
 	requestAnimationFrame(loop);
 };
