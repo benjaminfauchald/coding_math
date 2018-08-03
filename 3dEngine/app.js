@@ -68,10 +68,11 @@ var InitDemo = function () {
 
 	];
 
-	var mesh = [
+	var indecies = [
 		// draws two triangles for each face
 		// front (clockwise) & back (anti clockwise from same view, or rotate towards you to see it clockwise)
-		3, 0, 1, 1, 2, 3,
+
+        3, 0, 1, 1, 2, 3,
 		5, 4, 7, 7, 6, 5,
 
 		4, 0, 3, 3, 7, 4,
@@ -90,10 +91,51 @@ var InitDemo = function () {
 		// 4, 5, 6, // clockwise
 		// 6, 7, 4,
 	];
+    
+    
+    function addTriangle(radius) {
+        p = [{x:0 ,y:0, z:0}];
+        vertexIndex1 = 0;
+        vertexIndex2 = 0;
+        vertexIndex3 = 0;
+
+        //point 1
+        p.x = 0 * radius;
+        p.y = 1 * radius;
+        p.z = 20 * radius;
+        vertexIndex1 = vertices.push({x:p.x, y:p.y, z:p.z, r:0, g:0, b:0, a:0.5});
+
+        //point 2
+        p.x = -2 * radius;
+        p.y = -1 * radius;
+        p.z = 20 * radius;
+        vertexIndex2 = vertices.push({x:p.x, y:p.y, z:p.z, r:0, g:0, b:0, a:0.5});
+
+        //point 3
+        p.x = -2 * radius;
+        p.y = -1 * radius;
+        p.z = 20 * radius;
+        vertexIndex3 = vertices.push({x:p.x, y:p.y, z:p.z, r:0, g:0, b:0, a:0.5});
+
+        indecies.push(
+            vertices[vertexIndex1],
+            vertices[vertexIndex2],
+            vertices[vertexIndex3],
+            vertices[vertexIndex1],
+        );
+
+        console.log('vertexIndex1 = ' + vertexIndex1);
+        console.log('vertexIndex2 = ' + vertexIndex2);
+        console.log('vertexIndex3 = ' + vertexIndex3);
+
+        console.log('vertices = ' + vertices);
+        console.log('indecies = ' + indecies);
+
+
+    }
 
 
 	var gl;
-
 	var canvas = document.getElementById('game-surface');
 	gl = canvas.getContext('webgl');
 
@@ -105,6 +147,10 @@ var InitDemo = function () {
 	if (!gl) {
 		alert('Your browser does not support WebGL');
 	}
+
+	CreateShadersFromFile(gl);
+
+
 
 	gl.clearColor(0.75, 0.85, 0.8, 1.0);
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -146,14 +192,16 @@ var InitDemo = function () {
 		return;
 	}
 
-	//Create and attach buffers and data
+
+function bindBuffers(){
+    //Create and attach buffers and data
 	var boxVertexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, boxVertexBufferObject);
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
 	var boxIndexBufferObject = gl.createBuffer();
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, boxIndexBufferObject);
-	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh), gl.STATIC_DRAW);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indecies), gl.STATIC_DRAW);
 
 	var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
 	gl.vertexAttribPointer(
@@ -176,8 +224,10 @@ var InitDemo = function () {
 	);
 
 	gl.enableVertexAttribArray(positionAttribLocation);
-	gl.enableVertexAttribArray(colorAttribLocation);
+    gl.enableVertexAttribArray(colorAttribLocation);
+};
 
+    bindBuffers();
 	// Tell OpenGL state machine which program should be active.+++-
 	gl.useProgram(program);
 
@@ -208,8 +258,6 @@ var angle = 0;
 	// Functions to be moved
 	// ---------------------------------------------------------------------------------------------------------------------------
 
-''
-
 
 	// ---------------------------------------------------------------------------------------------------------------------------
 	// Main render loop
@@ -217,8 +265,8 @@ var angle = 0;
 	
 
  var origin = [{x:0, y:0, z:0}];
-
-	generateSquare(10, origin, vertices, mesh );
+ addTriangle(1);
+	generateSquare(10, origin, vertices, indecies);
 	
 	var loop = function () {
 
@@ -230,7 +278,7 @@ var angle = 0;
 
 		gl.clearColor(0.75, 0.85, 0.8, 1.0);
 		gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
-		gl.drawElements(gl.TRIANGLES, mesh.length, gl.UNSIGNED_SHORT, 0);
+		gl.drawElements(gl.TRIANGLES, indecies.length, gl.UNSIGNED_SHORT, 0);
 
 		requestAnimationFrame(loop);
 

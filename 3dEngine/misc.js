@@ -7,6 +7,7 @@
 
 /* Copyright (c) 2018, Fauchald Benjamin, Friend Imaginary */
 
+console.log('yredsy');
 
 function generateSquare(radius, origin, vertices, mesh) {
     var radius = 3;
