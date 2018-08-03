@@ -7,6 +7,10 @@
 // Data definitions
 //------------------------------------------------------------------------------
 
+var objects = [];
+
+var object = [];
+
 var points = [
     // {
     //     x: 100,
@@ -28,6 +32,8 @@ var origin = [{
     z: 000
 }];
 
+screenpoints = [];
+
 x=0;
 numObjects=0;
 
@@ -37,9 +43,43 @@ numObjects=0;
 
 
 
-for (i = 0; i < 100; i++) {
+for (i = 0; i < 1; i++) {
     generateSquare(100, {x: 0,y: 0,z: i * 100});
 }
+
+console.log("objects[0][0].x" + objects[0][0].x);
+//console.log("points[0].x" + points[0].x);
+
+
+console.log("objects[0][3].x" + objects[0][0].x);
+//console.log("points[3].x" + points[0].x);
+
+console.log("trying");
+points = "hubbabubba";
+
+
+console.log("points[3].x" + points[0].x);
+
+points =  objectsToPoints(objects, points);
+  
+
+console.log("objects[0][0].x" + objects[0][0].x);
+console.log("points[0].x" + points[0].x);
+
+
+console.log("objects[0][3].x" + objects[0][0].x);
+console.log("points[3].x" + points[0].x);
+
+
+console.log("px:" + points[0].x + "py: " + points[0].y + "pz: " + points[0].z);
+
+screenpoints = perspective_projection(points, screenpoints);
+console.log("sx:" + screenpoints[0].x + "sy: " + screenpoints[0].y);
+
+
+screenpoints.forEach(p => {
+    console.log("ssx:" + p.x + "ssy: " + p.y );
+});  
 
 //------------------------------------------------------------------------------
 // Function definitions
@@ -58,12 +98,19 @@ function rotateSquare(points)
 function zoomPoints(){
     points.forEach(p => {
         p.z += 5;
-        if (p.z > 500) { p.z = -1000; }
+        if (p.z > 500) {
+            //reset position
+            t = performance.now();
+            p.x = Math.sin(t) * 100;
+            p.y = Math.cos(t) * 100;
+            p.z = -1000; 
+        }
     });
     
 };
 
-function perspective_projection(points, screenpoints) {
+function perspective_projection(points) {
+    screenpoints = [];
     points.forEach(p => {
         var c = 500;
         x = p.x / (1 - p.z / c);
@@ -73,18 +120,34 @@ function perspective_projection(points, screenpoints) {
             y: y
         });
     });
+    return screenpoints;
 }
 
 
+function objectsToPoints(objects,points){
+    points = [];
+    objects.forEach(object=>{
+        object.forEach(p => {
+            points.push({x: p.x, y: p.y, z: p.z  });
+        })
+    });
+    return points;
+
+};
+
 function generateSquare(radius, origin) {
-    t = performance.now()
-    origin.x = Math.sin(t) * 36
-    origin.y = Math.cos(t) * 360
     var point = {x:0, y:0, z:0,r:0, g:0, b:0, a:0 };
-    points.push({x:origin.x-radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
-    points.push({x:origin.x-radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
-    points.push({x:origin.x+radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
-    points.push({x:origin.x+radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    // points.push({x:origin.x-radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    // points.push({x:origin.x-radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    // points.push({x:origin.x+radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    // points.push({x:origin.x+radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+
+    object.push({x:origin.x-radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    object.push({x:origin.x-radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    object.push({x:origin.x+radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    object.push({x:origin.x+radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+    objects.push(object);
+
 };
 
 window.onload = function update() {
@@ -93,8 +156,8 @@ window.onload = function update() {
     var canvas = document.getElementById("canvas"),
     context = canvas.getContext("2d"),
 
-    //width = canvas.width = 512,
-    //height = canvas.height = 0 | height * innerWidth / innerHeight,
+    // width = canvas.width = 512,
+    // height = canvas.height = 0 | height * innerWidth / innerHeight,
 
     width = canvas.width = window.innerWidth,
     height = canvas.height = window.innerHeight,
@@ -161,8 +224,17 @@ window.onload = function update() {
     };
   
 
+function drawPoints(screenpoints) {
+    context.fillStyle = "#FF0000";
+    screenpoints.forEach(p => {
+        context.fillRect(p.x, p.y, 8, 8);
+        context.fill
+    });
+};
 
-    function drawPoints(screenpoints, angle) {
+
+
+    function drawPoints2(screenpoints, angle) {
         radius = 20;
 
         p=screenpoints;
@@ -268,33 +340,38 @@ function rotatePoints3d(points, angle) {
 //  Render visual
 //------------------------------------------------------------------------------
 
-    //remeber that this is calculated in radians (optimize this!)
-    angle = 2.5;
-    var radian = angle * Math.PI / 180.0;
-
 
     context.translate(width / 2, height / 2);
-    context.strokeStyle = '#fff';
-    context.strokeText([width, height, frame], 0, 0);
-    context.stroke();
-    context.strokeText([angle], 0, 100);
-    context.strokeText("NUMBER OF POINTS: " + points.length, 0, 100);
-    context.stroke();
-
-
-
-
-    var screenpoints = [{x:0 , y:0, z:0}];
-
-    //draw a circle
-
-    zoomPoints();
-//    generateSquares();
-    rotatePoints(points, radian);
-    perspective_projection(points, screenpoints);
-
-//    drawLines(screenpoints);
     drawPoints(screenpoints);
+
+//     //remeber that this is calculated in radians (optimize this!)
+//     angle = 2.5;
+//     var radian = angle * Math.PI / 180.0;
+
+
+//     context.translate(width / 2, height / 2);
+//     context.strokeStyle = '#fff';
+//     context.strokeText([width, height, frame], 0, 0);
+//     context.stroke();
+//     context.strokeText([angle], 0, 100);
+//     context.strokeText("NUMBER OF POINTS: " + points.length, 0, 100);
+//     context.stroke();
+
+
+
+
+//     var screenpoints = [{x:0 , y:0, z:0}];
+
+//     //draw a circle
+
+//     zoomPoints();
+// //    generateSquares();
+//     points = objectsToPoints(objects,points);
+//     rotatePoints(points, radian);
+//     perspective_projection(points, screenpoints);
+
+// //    drawLines(screenpoints);
+//     drawPoints(screenpoints);
 
 
 //------------------------------------------------------------------------------
