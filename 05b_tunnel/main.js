@@ -35,7 +35,7 @@ var origin = [{
 screenpoints = [];
 
 x=0;
-numObjects=0;
+numObjects=12;
 
 //------------------------------------------------------------------------------
 // Initialize
@@ -43,8 +43,9 @@ numObjects=0;
 
 
 
-for (i = 0; i < 1; i++) {
+for (i = 0; i < numObjects; i++) {
     generateSquare(100, {x: 0,y: 0,z: i * 100});
+
 }
 
 console.log("objects[0][0].x" + objects[0][0].x);
@@ -135,17 +136,29 @@ function objectsToPoints(objects,points){
 
 };
 
+
+function rotateObject(object) {
+    
+    radian = angle * (Math.PI / 180);
+    object.forEach(point => {
+        y=point.y;
+        x=point.x;
+        point.x = x * Math.cos(radian) - y * Math.sin(radian);
+        point.y = y * Math.cos(radian) + x * Math.sin(radian);
+    })
+    return object;
+};
+
 function generateSquare(radius, origin) {
     var point = {x:0, y:0, z:0,r:0, g:0, b:0, a:0 };
-    // points.push({x:origin.x-radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
-    // points.push({x:origin.x-radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
-    // points.push({x:origin.x+radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
-    // points.push({x:origin.x+radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
 
     object.push({x:origin.x-radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
     object.push({x:origin.x-radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
     object.push({x:origin.x+radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
     object.push({x:origin.x+radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
+
+angle = Math.sin(performance.now()) * 360;
+    rotateObject(object,angle);
     objects.push(object);
 
 };
@@ -190,7 +203,7 @@ window.onload = function update() {
 //------------------------------------------------------------------------------
 
 
-    function drawLines(screenpoints){
+    function drawLines3(screenpoints){
 
 
         context.beginPath();
@@ -205,6 +218,11 @@ window.onload = function update() {
 //        context.lineTo(screenpoints[0].x, screenpoints[0].y);
 
     };
+
+
+
+
+
 
     function rotate2d(x,y,radian){
         nx = x * Math.cos(radian) - y * Math.sin(radian);
@@ -234,33 +252,32 @@ function drawPoints(screenpoints) {
 
 
 
-    function drawPoints2(screenpoints, angle) {
-        radius = 20;
+function drawLines(screenpoints) {
 
-        p=screenpoints;
-
+    p=screenpoints;
 
 
 
-        i=0;
-        while (i < (screenpoints.length-1) * 4)
-        {
+    i=0;
+    while (i < numObjects * 4)
+    {
 //            console.log(i);
 
-            context.beginPath();
-            context.lineTo(screenpoints[i + 1].x, screenpoints[i + 1].y);
-            context.lineTo(screenpoints[i + 2].x, screenpoints[i + 2].y);
-            context.lineTo(screenpoints[i + 3].x, screenpoints[i + 3].y);
-            context.lineTo(screenpoints[i + 4].x, screenpoints[i + 4].y);
-            context.lineTo(screenpoints[i + 1].x, screenpoints[i + 1].y);
-            context.strokeStyle = "#FFAACC";
-            context.lineWidth = 1;
-            context.stroke();
-            i++;
-            i++;
-            i++;
-            i++;
-        };
+        context.beginPath();
+        context.moveTo(screenpoints[i + 0].x, screenpoints[i + 0].y);
+        context.lineTo(screenpoints[i + 1].x, screenpoints[i + 1].y);
+        context.lineTo(screenpoints[i + 2].x, screenpoints[i + 2].y);
+        context.lineTo(screenpoints[i + 3].x, screenpoints[i + 3].y);
+        context.lineTo(screenpoints[i + 0].x, screenpoints[i + 0].y);
+
+        context.strokeStyle = "#FFAACC";
+        context.lineWidth = 1;
+        context.stroke();
+        i++;
+        i++;
+        i++;
+        i++;
+    };
 
 
 
@@ -322,19 +339,7 @@ function rotatePoints3d(points, angle) {
 };
 
 
-/*
- CX @ Origin X
- CY @ Origin Y
- X  @ Point X to be rotated
- Y  @ Point Y to be rotated
-*/
-// function rotate3d(X, Y, CX, CY, angle) {
-//     var rad = angle * Math.PI / 180.0;
-//     var nx = Math.cos(rad) * (X - CX) - Math.sin(rad) * (Y - CY) + CX;
-//     var ny = Math.sin(rad) * (X - CX) + Math.cos(rad) * (Y - CY) + CY;
 
-//     return [nx, ny];
-// }
 
 //------------------------------------------------------------------------------
 //  Render visual
@@ -343,20 +348,7 @@ function rotatePoints3d(points, angle) {
 
     context.translate(width / 2, height / 2);
     drawPoints(screenpoints);
-
-//     //remeber that this is calculated in radians (optimize this!)
-//     angle = 2.5;
-//     var radian = angle * Math.PI / 180.0;
-
-
-//     context.translate(width / 2, height / 2);
-//     context.strokeStyle = '#fff';
-//     context.strokeText([width, height, frame], 0, 0);
-//     context.stroke();
-//     context.strokeText([angle], 0, 100);
-//     context.strokeText("NUMBER OF POINTS: " + points.length, 0, 100);
-//     context.stroke();
-
+    drawLines(screenpoints);
 
 
 
@@ -378,58 +370,3 @@ function rotatePoints3d(points, angle) {
 
 };
  
-
-
-//------------------------------------------------------------------------------
-
-
-
-
-  // Create the image
-// function createImage(offset) {
-//     // Loop over all of the pixels
-//     for (var x = 0; x < width; x++) {
-//         for (var y = 0; y < height; y++) {
-//             // Get the pixel index
-//             var pixelindex = (y * width + x) * 4;
-
-//             // Generate a xor pattern with some random noise
-//             var red = ((x + offset) % 256) ^ ((y + offset) % 256);
-//             var green = ((2 * x + offset) % 256) ^ ((2 * y + offset) % 256);
-//             var blue = 50 + Math.floor(Math.random() * 100);
-
-//             // Rotate the colors
-//             blue = (blue + offset) % 256;
-
-//             // Set the pixel data
-//             imagedata.data[pixelindex] = red; // Red
-//             imagedata.data[pixelindex + 1] = green; // Green
-//             imagedata.data[pixelindex + 2] = blue; // Blue
-//             imagedata.data[pixelindex + 3] = 255; // Alpha
-//         }
-//     }
-// }
-
-// function drawPixel(x, y, r, g, b) {
-//     var pixelindex = (y * width + x) * 4;
-//     var radius = 10;
-//     // Set the pixel data
-//     imagedata.data[pixelindex] = r; // Red
-//     imagedata.data[pixelindex + 1] = g; // Green
-//     imagedata.data[pixelindex + 2] = b; // Blue
-//     imagedata.data[pixelindex + 3] = 255; // Alpha
-// }
-
-// /*
-//  CX @ Origin X
-//  CY @ Origin Y
-//  X  @ Point X to be rotated
-//  Y  @ Point Y to be rotated
-// */
-// function rotate(X, Y, CX, CY, angle) {
-//     var rad = angle * Math.PI / 180.0;
-//     var nx = Math.cos(rad) * (X - CX) - Math.sin(rad) * (Y - CY) + CX;
-//     var ny = Math.sin(rad) * (X - CX) + Math.cos(rad) * (Y - CY) + CY;
-
-//     return [nx, ny];
-// }
