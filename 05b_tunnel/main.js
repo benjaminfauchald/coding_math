@@ -35,7 +35,7 @@ var origin = [{
 screenpoints = [];
 
 x=0;
-numObjects=12;
+numObjects=500/(5*4);
 
 //------------------------------------------------------------------------------
 // Initialize
@@ -44,7 +44,7 @@ numObjects=12;
 
 
 for (i = 0; i < numObjects; i++) {
-    generateSquare(100, {x: 0,y: 0,z: i * 100});
+    generateSquare(100, {x: 0,y: 0,z: i * 400});
 
 }
 
@@ -87,27 +87,25 @@ screenpoints.forEach(p => {
 //------------------------------------------------------------------------------
 
 
-
-function rotateSquare(points)
-{
-    t = performance.now()
-    a = Math.sin(t) * 306
-
-
+function zoomObjects(objects) {
+    objects.forEach(object => {
+        object=zoomPoints(object);
+    });
+    return objects;
 };
 
-function zoomPoints(){
-    points.forEach(p => {
-        p.z += 5;
-        if (p.z > 500) {
+function zoomPoints(object) {
+    object.forEach(point => {
+        point.z += 1;
+        if (point.z > 500) {
             //reset position
             t = performance.now();
-            p.x = Math.sin(t) * 100;
-            p.y = Math.cos(t) * 100;
-            p.z = -1000; 
+            //point.x = Math.sin(t) * 100;
+            //point.y = Math.cos(t) * 100;
+            point.z = -1000;
         }
     });
-    
+    return object;
 };
 
 function perspective_projection(points) {
@@ -137,8 +135,7 @@ function objectsToPoints(objects,points){
 };
 
 
-function rotateObject(object) {
-    
+function rotateObject(object,angle) {
     radian = angle * (Math.PI / 180);
     object.forEach(point => {
         y=point.y;
@@ -157,11 +154,14 @@ function generateSquare(radius, origin) {
     object.push({x:origin.x+radius, y:origin.y+radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
     object.push({x:origin.x+radius, y:origin.y-radius, z: -origin.z, ox: origin.x, oy: origin.y, angle: 0 });
 
-angle = Math.sin(performance.now()) * 360;
-    rotateObject(object,angle);
+    angle = Math.sin(performance.now()) * 360;
+    rotateObject(object, angle);
     objects.push(object);
 
 };
+
+
+//--------------------------------------------------------- R E N D E R   L O O P -----------------------------------------------------------------
 
 window.onload = function update() {
 
@@ -253,16 +253,9 @@ function drawPoints(screenpoints) {
 
 
 function drawLines(screenpoints) {
-
-    p=screenpoints;
-
-
-
     i=0;
     while (i < numObjects * 4)
     {
-//            console.log(i);
-
         context.beginPath();
         context.moveTo(screenpoints[i + 0].x, screenpoints[i + 0].y);
         context.lineTo(screenpoints[i + 1].x, screenpoints[i + 1].y);
@@ -278,34 +271,7 @@ function drawLines(screenpoints) {
         i++;
         i++;
     };
-
-
-
-
-
-
-
-        context.beginPath();
-        screenpoints.forEach(p => {
-
-        //     //        p.x = p.x + (width / 2) + (p.x / 2);
-        //     //        p.y = p.y + (height / 2) + (p.y / 2);
-        //     //        drawPixel(p.x, p.y, 0, 0, 0);
-
-        //     //        angle = performance.now() / 1000 / 6 * 2 * Math.PI;
-        //     // draw ugly circles
-
-
-            context.beginPath();
-            context.fillRect(p.x, p.y, 8, 8);
-            context.fill
-            context.closePath();
-            context.fill();
-
-
-        });
-
-    };
+};
 
 
 function translateToOrigin(point){
@@ -347,23 +313,15 @@ function rotatePoints3d(points, angle) {
 
 
     context.translate(width / 2, height / 2);
-    drawPoints(screenpoints);
+
+    angle = 1;
+    rotateObject(object, angle);
+    objects = zoomObjects(objects);
+    points = objectsToPoints(objects, points);
+    screenpoints = perspective_projection(points, screenpoints);
+
+
     drawLines(screenpoints);
-
-
-
-//     var screenpoints = [{x:0 , y:0, z:0}];
-
-//     //draw a circle
-
-//     zoomPoints();
-// //    generateSquares();
-//     points = objectsToPoints(objects,points);
-//     rotatePoints(points, radian);
-//     perspective_projection(points, screenpoints);
-
-// //    drawLines(screenpoints);
-//     drawPoints(screenpoints);
 
 
 //------------------------------------------------------------------------------
